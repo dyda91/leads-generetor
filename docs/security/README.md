@@ -66,6 +66,14 @@ Ameaças consideradas nesta fase:
 | Auditoria de ações sensíveis                                                                                                | Planejado    | `audit-and-observability`                             |
 | Hardening de produção (containers não-root, imagens fixadas, .env validado)                                                 | Planejado    | `production-hardening-and-deployment`                 |
 
+## Health check
+
+- **Finalidade:** liveness exclusiva — o endpoint `GET /health` responde apenas `{"status":"ok"}` (HTTP 200, `Content-Type: application/json`, `Cache-Control: no-store`).
+- **Não mede** banco, dependências, memória, hostname, versões ou qualquer dependência externa. Não afirma que PostgreSQL ou Google Places estão saudáveis.
+- **Público não é diagnóstico:** não expõe readiness detalhado, métricas, `/info`, `/debug` ou aliases. Readiness detalhada, se necessária, pertence a uma mudança futura.
+- **Controles globais:** o health está sujeito ao rate limit global (429 usa o envelope seguro), CORS, Helmet/CSP/HSTS e request ID (somente no header `X-Request-Id`).
+- **Métodos efetivamente suportados:** `GET` (200), `HEAD` (200 sem corpo, tratado automaticamente pelo Express), `OPTIONS` (respondido como preflight pelo CORS); `POST`/`PUT`/`PATCH`/`DELETE` são rejeitados (404 pelo contrato de erro).
+
 ## Rate limiting
 
 - **Instância única:** a proteção atual usa um armazenamento **in-memory local** (`@nestjs/throttler`), válido apenas para uma única instância do processo. Múltiplas instâncias exigirão um armazenamento coordenado (ex.: Redis) — decisão de `production-hardening-and-deployment`.

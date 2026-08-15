@@ -50,7 +50,7 @@ Critério de conclusão: teste negativo de 429 verde; documentação da estraté
 
 Comandos: `pnpm --filter @leads/api test`
 
-- [ ] 6.1 Criar `GET /health` público retornando somente status mínimo; método não permitido rejeitado
+- [x] 6.1 Criar `GET /health` público retornando somente status mínimo; método não permitido rejeitado
 
 Critério de conclusão: testes confirmam acesso anônimo, resposta mínima sem internos e rejeição de método não permitido.
 

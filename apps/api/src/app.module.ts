@@ -6,6 +6,7 @@ import type { DynamicModule } from '@nestjs/common';
 
 import { EnvironmentService } from './config/environment.service';
 import type { Environment } from './config/environment.types';
+import { HealthModule } from './health/health.module';
 
 @Module({})
 export class AppModule {
@@ -26,6 +27,7 @@ export class AppModule {
             setHeaders: false,
           },
         ]),
+        HealthModule,
       ],
       providers: [
         EnvironmentService,

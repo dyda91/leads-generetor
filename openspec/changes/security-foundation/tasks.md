@@ -31,9 +31,9 @@ Critério de conclusão: testes de headers (Helmet, CSP com presença/valores es
 
 Comandos: `pnpm --filter @leads/api test`
 
-- [ ] 4.1 Configurar ValidationPipe global (`transform`, `whitelist`, `forbidNonWhitelisted`)
-- [ ] 4.2 Criar filtro global de exceções com contrato consistente; `message` vindo de códigos/mensagens controladas (nunca `exception.message` de erros inesperados); `details` apenas com nomes de campos e tipos de violação (nunca valores); 413/429/404/validação no mesmo envelope quando tecnicamente possível; exceções pré-NestJS (parser de body) normalizadas; 404 sem estrutura interna; sem stack trace em produção
-- [ ] 4.3 Implementar request ID (sempre gerado no backend com `crypto.randomUUID()`; ignorar `X-Request-Id` do cliente sem reutilizar/ecoar; header `X-Request-Id`; sem dados do usuário)
+- [x] 4.1 Configurar ValidationPipe global (`transform`, `whitelist`, `forbidNonWhitelisted`)
+- [x] 4.2 Criar filtro global de exceções com contrato consistente; `message` vindo de códigos/mensagens controladas (nunca `exception.message` de erros inesperados); `details` apenas com nomes de campos e tipos de violação (nunca valores); 413/429/404/validação no mesmo envelope quando tecnicamente possível; exceções pré-NestJS (parser de body) normalizadas; 404 sem estrutura interna; sem stack trace em produção
+- [x] 4.3 Implementar request ID (sempre gerado no backend com `crypto.randomUUID()`; ignorar `X-Request-Id` do cliente sem reutilizar/ecoar; header `X-Request-Id`; sem dados do usuário)
 
 Critério de conclusão: testes negativos de validação (propriedades desconhecidas, tipos inválidos, limites) e de erros (contrato, 404, genérico controlado, envelope 413/429/404/validação, pré-NestJS, sem stack em produção, request ID) verdes; valores rejeitados ausentes de logs/respostas; entrada externa não controla o ID interno.
 

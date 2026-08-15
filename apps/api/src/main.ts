@@ -4,7 +4,7 @@ import { NestFactory } from '@nestjs/core';
 import type { NestExpressApplication } from '@nestjs/platform-express';
 
 import { AppModule } from './app.module';
-import { BIND_HOST, applySecurityMiddleware } from './bootstrap';
+import { BIND_HOST, applyApplicationControls, applySecurityMiddleware } from './bootstrap';
 import { EnvironmentValidationError, parseEnvironment } from './config/environment.schema';
 import { EnvironmentService } from './config/environment.service';
 import type { Environment } from './config/environment.types';
@@ -34,6 +34,7 @@ async function bootstrap(): Promise<void> {
     bodyParser: false,
   });
   applySecurityMiddleware(app, environment);
+  applyApplicationControls(app);
   app.enableShutdownHooks();
 
   const environmentService = app.get(EnvironmentService);

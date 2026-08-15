@@ -3,6 +3,10 @@ import helmet from 'helmet';
 import type { NestExpressApplication } from '@nestjs/platform-express';
 
 import type { Environment } from './config/environment.types';
+import { GlobalExceptionFilter } from './http/global-exception-filter';
+import { parserErrorHandler } from './http/parser-error-handler';
+import { requestIdMiddleware } from './http/request-id';
+import { createValidationPipe } from './http/validation-pipe';
 
 export const BIND_HOST = '127.0.0.1';
 
@@ -52,12 +56,11 @@ function corsOriginCallback(allowlist: ReadonlySet<string>) {
   };
 }
 
-export function applySecurityMiddleware(
-  app: NestExpressApplication,
-  environment: Environment,
-): void {
+export function applyHttpSecurity(app: NestExpressApplication, environment: Environment): void {
   app.disable('x-powered-by');
   app.set('query parser', 'simple');
+
+  app.use(requestIdMiddleware);
 
   app.use(helmet(helmetOptions(environment)));
 
@@ -82,4 +85,21 @@ export function applySecurityMiddleware(
       inflate: false,
     }),
   );
+}
+
+export function applyParserErrorHandler(app: NestExpressApplication): void {
+  app.use(parserErrorHandler);
+}
+
+export function applySecurityMiddleware(
+  app: NestExpressApplication,
+  environment: Environment,
+): void {
+  applyHttpSecurity(app, environment);
+  applyParserErrorHandler(app);
+}
+
+export function applyApplicationControls(app: NestExpressApplication): void {
+  app.useGlobalPipes(createValidationPipe());
+  app.useGlobalFilters(new GlobalExceptionFilter());
 }

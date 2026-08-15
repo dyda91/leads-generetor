@@ -224,7 +224,9 @@ describe('parseEnvironment', () => {
   });
 
   it('rejects a body limit above the maximum', () => {
-    const issues = validationErrorFor({ ...validDev, BODY_LIMIT_BYTES: '20000000' }).issues;
-    expect(hasIssue(issues, 'BODY_LIMIT_BYTES', 'out_of_range')).toBe(true);
+    for (const value of ['2000000', '20000000']) {
+      const issues = validationErrorFor({ ...validDev, BODY_LIMIT_BYTES: value }).issues;
+      expect(hasIssue(issues, 'BODY_LIMIT_BYTES', 'out_of_range')).toBe(true);
+    }
   });
 });

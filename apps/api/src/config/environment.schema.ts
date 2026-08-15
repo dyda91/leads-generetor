@@ -6,7 +6,7 @@ export const nodeEnvValues = ['development', 'test', 'production'] as const;
 
 export const DEFAULT_BODY_LIMIT_BYTES = 100_000;
 export const MIN_BODY_LIMIT_BYTES = 1_000;
-export const MAX_BODY_LIMIT_BYTES = 10_000_000;
+export const MAX_BODY_LIMIT_BYTES = 1_000_000;
 
 const nonEmptyString = z.string('required').trim().min(1, { message: 'required' });
 

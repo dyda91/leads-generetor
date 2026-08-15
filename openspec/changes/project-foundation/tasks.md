@@ -1,11 +1,11 @@
 ## 1. Repositório e estrutura
 
-- [ ] 1.1 Inicializar o repositório git e criar `.gitignore` raiz (node_modules, dist, coverage, playwright-report, test-results, etc.)
-- [ ] 1.2 Adicionar ao `.gitignore` as regras de ambiente: `**/.env`, `**/.env.*`, `!**/.env.example`
-- [ ] 1.3 Criar a estrutura de diretórios: apps/web, apps/api, apps/e2e, packages/contracts, packages/eslint-config, packages/typescript-config, infrastructure, docs/architecture, docs/security, docs/decisions, scripts, openspec
-- [ ] 1.4 Criar `package.json` raiz com `packageManager: "pnpm@11.21.0"` e scripts (dev, build, lint, typecheck, test, format, check)
-- [ ] 1.5 Criar `pnpm-workspace.yaml` listando os workspaces
-- [ ] 1.6 Criar `README.md` raiz (visão geral, stack, setup, comandos)
+- [x] 1.1 Inicializar o repositório git e criar `.gitignore` raiz (node_modules, dist, coverage, playwright-report, test-results, etc.)
+- [x] 1.2 Adicionar ao `.gitignore` as regras de ambiente: `**/.env`, `**/.env.*`, `!**/.env.example`
+- [x] 1.3 Criar a estrutura de diretórios: apps/web, apps/api, apps/e2e, packages/contracts, packages/eslint-config, packages/typescript-config, infrastructure, docs/architecture, docs/security, docs/decisions, scripts, openspec
+- [x] 1.4 Criar `package.json` raiz com `packageManager: "pnpm@11.21.0"` e scripts (dev, build, lint, typecheck, test, format, check)
+- [x] 1.5 Criar `pnpm-workspace.yaml` listando os workspaces
+- [x] 1.6 Criar `README.md` raiz (visão geral, stack, setup, comandos)
 
 ## 2. Configuração compartilhada
 

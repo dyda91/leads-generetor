@@ -1,0 +1,30 @@
+# Dependencies
+node_modules/
+
+# Build outputs
+dist/
+build/
+*.tsbuildinfo
+
+# Tests / coverage
+coverage/
+playwright-report/
+test-results/
+blob-report/
+
+# Logs
+*.log
+logs/
+
+# Editors / OS
+.DS_Store
+.idea/
+*.swp
+
+# Environment files (real). Example files are allowed.
+**/.env
+**/.env.*
+!**/.env.example
+
+# Local-only configuration files
+*.local

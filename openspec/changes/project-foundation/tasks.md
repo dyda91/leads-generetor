@@ -42,6 +42,8 @@
 
 ## 7. Validação da fundação
 
-- [ ] 7.1 `pnpm install` + lockfile; `pnpm lint`, `pnpm typecheck` e build dos pacotes sem erros
-- [ ] 7.2 Verificação manual: nenhum segredo versionado, `.env` ignorado, `.env.example` versionado, porta do Postgres em loopback, containers não-root
-- [ ] 7.3 Revisão dos contratos da spec app-foundation versus implementação
+- [x] 7.1 `pnpm install` + lockfile; `pnpm lint`, `pnpm typecheck` e build dos pacotes sem erros
+- [x] 7.2 Verificação manual: nenhum segredo versionado, `.env` ignorado, `.env.example` versionado, porta do Postgres em loopback, containers não-root
+- [x] 7.3 Revisão dos contratos da spec app-foundation versus implementação
+
+> **Ownership dos requisitos runtime (decisão aprovada):** validação fail-fast de configuração e health check público mínimo pertencem a `security-foundation`; logs estruturados/sanitizados em runtime pertencem a `audit-and-observability`; chamadas/respostas runtime do Google Places pertencem a `places-search`. Fora do escopo desta mudança — a spec `app-foundation` contém somente contratos implementados e verificáveis.

@@ -36,3 +36,5 @@ A aplicação busca empresas por segmento e localização usando a Google Places
 ## Critérios para reavaliar
 
 - Se surgir um mecanismo oficial do provedor que permita acesso seguro e mensurável a partir do navegador sem expor segredos; se o custo/latência do proxy se tornar inviável; se outro provedor se tornar mais adequado (mantendo a abstração).
+
+> **Nota de implementação:** a nível de repositório, a variável é declarada somente no template do backend e ausente do frontend (implementado em `project-foundation`). O comportamento runtime — chamadas ao Google somente pelo backend e respostas sem a chave — será implementado em `places-search`.

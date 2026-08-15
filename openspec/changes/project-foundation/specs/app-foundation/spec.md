@@ -1,20 +1,8 @@
 ## Purpose
 
-Establishes the persistent behavioral contracts of the system foundation that every later change must respect: safe configuration handling, secret hygiene, the backend-only Google Places boundary, PostgreSQL exposure limits, a minimal public health check, and sanitized structured logs.
+Establishes the persistent behavioral contracts of the system foundation implemented and verifiable in this change: secret hygiene, repository-level Google Places key placement, PostgreSQL exposure limits, reproducible foundation gates, and shared strict TypeScript configurations.
 
 ## ADDED Requirements
-
-### Requirement: Validação fail-fast de configuração
-A aplicação SHALL validar todas as variáveis de ambiente durante a inicialização e MUST encerrar o processo antes de aceitar tráfego quando a configuração for inválida ou insegura (por exemplo, um segredo obrigatório ausente em produção ou um valor inseguro).
-
-#### Scenario: Configuração inválida bloqueia o boot
-- **WHEN** o backend inicia com configuração inválida ou insegura
-- **THEN** o processo é encerrado antes de aceitar tráfego
-- **AND** nenhum detalhe interno de configuração é exposto na falha
-
-#### Scenario: Configuração válida inicia o serviço
-- **WHEN** o backend inicia com configuração válida
-- **THEN** o processo sobe e passa a aceitar tráfego
 
 ### Requirement: Segredos nunca versionados
 O repositório SHALL ignorar arquivos `.env` e suas variações (`**/.env`, `**/.env.*`) e MUST permitir explicitamente apenas os arquivos de exemplo (`!**/.env.example`). Os arquivos `.env.example` versionados SHALL conter somente nomes e exemplos não secretos.
@@ -28,17 +16,30 @@ O repositório SHALL ignorar arquivos `.env` e suas variações (`**/.env`, `**/
 - **THEN** ele não é ignorado pelo git
 - **AND** contém apenas nomes e exemplos não secretos
 
-### Requirement: Chave do Google Places somente no backend
-O sistema SHALL manter a chave da Google Places API exclusivamente no backend, carregada do ambiente, e MUST nunca expô-la ao frontend — nem em respostas da API, bundles do frontend, logs ou testes. Todas as chamadas ao Google Places SHALL ser feitas apenas pelo backend.
+#### Scenario: Detecção de segredos nos gates
+- **WHEN** a detecção de segredos é executada (`check:secrets` ou pre-commit)
+- **THEN** um possível segredo faz o comando encerrar com exit code diferente de zero
+- **AND** a saída reporta arquivo, localização e regra, sem imprimir o valor
 
-#### Scenario: Respostas da API sem chave
-- **WHEN** a API retorna dados de lugares ao frontend
-- **THEN** a resposta não contém nenhum valor de chave da Google Places API
+### Requirement: Chave do Google Places restrita ao backend (nível de repositório)
+Os templates e configurações do repositório SHALL declarar `GOOGLE_PLACES_API_KEY` exclusivamente no backend e MUST NOT declarar ou incorporar essa variável no frontend.
 
-#### Scenario: Frontend não chama o Google diretamente
-- **WHEN** o frontend precisa de dados de lugares
-- **THEN** ele solicita os dados ao backend
-- **AND** a requisição não exige nem contém a chave da Google Places API
+#### Scenario: Exemplo do backend sem valor real
+- **WHEN** o arquivo `apps/api/.env.example` é revisado
+- **THEN** ele declara `GOOGLE_PLACES_API_KEY` sem valor real
+
+#### Scenario: Exemplo do frontend sem a variável
+- **WHEN** o arquivo `apps/web/.env.example` é revisado
+- **THEN** ele não declara `GOOGLE_PLACES_API_KEY`
+- **AND** nenhuma variável `VITE_*` representa a chave
+
+#### Scenario: Scanner e gates sem chave versionada
+- **WHEN** a detecção de segredos é executada nos arquivos versionados
+- **THEN** nenhuma chave do Google Places é encontrada
+
+#### Scenario: Ownership runtime documentado
+- **WHEN** a documentação é revisada
+- **THEN** registra que a implementação runtime (chamadas e respostas) pertencerá à mudança `places-search`
 
 ### Requirement: PostgreSQL não exposto publicamente
 O banco de dados SHALL ser acessível apenas localmente em desenvolvimento e MUST nunca ter porta publicamente publicada em produção. Em desenvolvimento, quando o acesso pelo host for necessário, a porta SHALL ser publicada somente em loopback.
@@ -53,17 +54,26 @@ O banco de dados SHALL ser acessível apenas localmente em desenvolvimento e MUS
 - **THEN** nenhuma porta é publicada publicamente
 - **AND** o banco permanece acessível apenas na rede interna
 
-### Requirement: Health check público mínimo
-O endpoint público de health SHALL retornar somente o mínimo necessário de status e MUST não revelar detalhes internos.
+### Requirement: Gates reprodutíveis da fundação
+O repositório SHALL prover um gate reprodutível (`pnpm check`) que executa formatação, contratos de workspaces, detecção de segredos, lint, typecheck, testes e build, e MUST falhar quando qualquer etapa falhar.
 
-#### Scenario: Sondagem anônima de health
-- **WHEN** um cliente não autenticado chama o endpoint público de health
-- **THEN** a resposta contém apenas uma indicação mínima de status
-- **AND** nenhum detalhe interno é incluído
+#### Scenario: Gate completo passa em base saudável
+- **WHEN** `pnpm check` é executado em uma base saudável
+- **THEN** todas as etapas são executadas
+- **AND** o comando encerra com sucesso
 
-### Requirement: Logs estruturados e sanitizados
-O backend SHALL emitir logs estruturados que nunca contenham senhas, tokens, cookies, cabeçalhos de autorização, chaves ou dados pessoais desnecessários.
+#### Scenario: Gate falha em erro real
+- **WHEN** alguma etapa falha (lint, typecheck, teste ou segredo)
+- **THEN** o gate encerra com exit code diferente de zero
 
-#### Scenario: Erros de autenticação não vazam credenciais
-- **WHEN** um erro de autenticação é registrado
-- **THEN** a entrada de log não contém senha, token ou valor de cabeçalho de autorização
+### Requirement: Configurações TypeScript estritas compartilhadas
+O repositório SHALL prover configurações TypeScript compartilhadas que habilitam TypeScript estrito — `strict`, `noImplicitAny`, `noUncheckedIndexedAccess`, `exactOptionalPropertyTypes`, `noImplicitOverride`, `noFallthroughCasesInSwitch` e `forceConsistentCasingInFileNames` — e MUST ser consumíveis pelos workspaces.
+
+#### Scenario: Flags estritas ativas
+- **WHEN** as configurações compartilhadas são validadas
+- **THEN** as sete flags obrigatórias estão ativas na base
+- **AND** os perfis web e api herdam da base
+
+#### Scenario: Configuração consumível pelos workspaces
+- **WHEN** um workspace estende as configurações compartilhadas
+- **THEN** o compilador TypeScript executa sem erro de resolução de configuração

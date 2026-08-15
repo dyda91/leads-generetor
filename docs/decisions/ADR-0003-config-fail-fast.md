@@ -35,4 +35,4 @@ A configuração (variáveis de ambiente) é **validada durante a inicializaçã
 
 - Se houver necessidade de recarregar configuração em runtime; se o número de variáveis crescer a ponto de exigir uma ferramenta de gerenciamento de segredos externa; se surgirem perfis de ambiente muito distintos.
 
-> **Nota de implementação:** o contrato está estabelecido na spec `app-foundation`. A implementação de runtime ocorrerá quando a API existir (mudança `security-foundation`).
+> **Nota de implementação:** esta decisão é uma obrigação de runtime da mudança futura `security-foundation`, que criará sua própria spec normativa. Não foi implementada em `project-foundation`.

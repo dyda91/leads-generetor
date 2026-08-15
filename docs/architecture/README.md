@@ -35,7 +35,7 @@ Sistema web para gerar e gerenciar leads empresariais: busca de empresas por seg
 
 ## Limites de responsabilidade
 
-- **Google Places é acessado exclusivamente pelo backend.** A chave da API existe somente no backend, carregada por variável de ambiente. Nenhuma chave ou segredo chega ao frontend, a respostas da API, a logs ou a testes.
+- **Google Places é acessado exclusivamente pelo backend.** A chave da API existe somente no backend, carregada por variável de ambiente. Nenhuma chave ou segredo chega ao frontend, a respostas da API, a logs ou a testes. **Nível de repositório (implementado):** a variável é declarada apenas no template do backend e ausente do frontend. **Runtime (planejado):** as chamadas e respostas reais ao Google serão implementadas em `places-search`.
 - O frontend depende de uma abstração de busca de estabelecimentos fornecida pela API; não acopla ao provedor (Google).
 - O backend é a única fronteira com serviços externos e com o banco de dados.
 - Nada enviado pelo navegador é tratado como confiável: roles, ids de usuário/owner e permissões são determinados e validados no backend.

@@ -45,25 +45,26 @@ Ameaças consideradas nesta fase:
 
 ## Controles por ameaça e mapa de mudanças
 
-| Controle                                                                                                                    | Status                                       | Mudança prevista                                      |
-| --------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------- | ----------------------------------------------------- |
-| Segredos nunca versionados; `.env.example` com placeholders                                                                 | Implementado (parcial)                       | `project-foundation` (secretlint, pre-commit)         |
-| PostgreSQL não exposto publicamente; loopback                                                                               | Implementado                                 | `project-foundation` (compose dev)                    |
-| Google Places exclusivamente no backend                                                                                     | Obrigatório (contrato); integração planejada | `places-search`                                       |
-| Validação fail-fast de configuração                                                                                         | Obrigatório (contrato); runtime planejado    | `security-foundation`                                 |
-| Health check público mínimo                                                                                                 | Obrigatório (contrato)                       | `security-foundation`                                 |
-| Logs estruturados e sanitizados                                                                                             | Obrigatório (contrato)                       | `audit-and-observability`                             |
-| Autenticação e autorização (Argon2id, refresh rotativo, cookies, CSRF, bloqueio de brute force, revogação, anti-enumeração) | Planejado                                    | `authentication-and-authorization`                    |
-| Rate limiting global e reforçado (login, pesquisa, exportação)                                                              | Planejado                                    | `security-foundation`                                 |
-| Validação de entrada e rejeição de propriedades desconhecidas                                                               | Planejado                                    | `security-foundation`                                 |
-| Erros centralizados sem detalhes internos                                                                                   | Planejado                                    | `security-foundation`                                 |
-| Proteção contra IDOR (propriedade/permissão em todo recurso)                                                                | Planejado                                    | `lead-management`, `lead-lists-and-pipeline`          |
-| Proteção contra XSS/CSP                                                                                                     | Planejado                                    | `visual-foundation-and-layout`, `security-foundation` |
-| Proteção contra SSRF e chamadas externas seguras (timeout, redirecionamentos, validação de URL)                             | Planejado                                    | `places-search`                                       |
-| SQL injection (consultas parametrizadas)                                                                                    | Planejado                                    | `security-foundation`/API                             |
-| Abuso de API e paginação                                                                                                    | Planejado                                    | `security-foundation`                                 |
-| Auditoria de ações sensíveis                                                                                                | Planejado                                    | `audit-and-observability`                             |
-| Hardening de produção (containers não-root, imagens fixadas, .env validado)                                                 | Planejado                                    | `production-hardening-and-deployment`                 |
+| Controle                                                                                                                    | Status       | Mudança prevista                                      |
+| --------------------------------------------------------------------------------------------------------------------------- | ------------ | ----------------------------------------------------- |
+| Segredos nunca versionados; `.env.example` com placeholders                                                                 | Implementado | `project-foundation` (secretlint, pre-commit)         |
+| PostgreSQL não exposto publicamente; loopback                                                                               | Implementado | `project-foundation` (compose dev)                    |
+| Google Places — chave ausente do frontend (nível de repositório)                                                            | Implementado | `project-foundation`                                  |
+| Google Places — chamadas/respostas runtime backend-only                                                                     | Planejado    | `places-search`                                       |
+| Validação fail-fast de configuração (runtime)                                                                               | Planejado    | `security-foundation`                                 |
+| Health check público mínimo (runtime)                                                                                       | Planejado    | `security-foundation`                                 |
+| Logs estruturados e sanitizados (runtime)                                                                                   | Planejado    | `audit-and-observability`                             |
+| Autenticação e autorização (Argon2id, refresh rotativo, cookies, CSRF, bloqueio de brute force, revogação, anti-enumeração) | Planejado    | `authentication-and-authorization`                    |
+| Rate limiting global e reforçado (login, pesquisa, exportação)                                                              | Planejado    | `security-foundation`                                 |
+| Validação de entrada e rejeição de propriedades desconhecidas                                                               | Planejado    | `security-foundation`                                 |
+| Erros centralizados sem detalhes internos                                                                                   | Planejado    | `security-foundation`                                 |
+| Proteção contra IDOR (propriedade/permissão em todo recurso)                                                                | Planejado    | `lead-management`, `lead-lists-and-pipeline`          |
+| Proteção contra XSS/CSP                                                                                                     | Planejado    | `visual-foundation-and-layout`, `security-foundation` |
+| Proteção contra SSRF e chamadas externas seguras (timeout, redirecionamentos, validação de URL)                             | Planejado    | `places-search`                                       |
+| SQL injection (consultas parametrizadas)                                                                                    | Planejado    | `security-foundation`/API                             |
+| Abuso de API e paginação                                                                                                    | Planejado    | `security-foundation`                                 |
+| Auditoria de ações sensíveis                                                                                                | Planejado    | `audit-and-observability`                             |
+| Hardening de produção (containers não-root, imagens fixadas, .env validado)                                                 | Planejado    | `production-hardening-and-deployment`                 |
 
 ## Portas e serviços
 
@@ -72,8 +73,8 @@ Ameaças consideradas nesta fase:
 
 ## Google Places
 
-- A chave existe **somente no backend**, recebida por variável de ambiente.
-- O frontend nunca recebe a chave; chamadas ao Google são feitas apenas pelo backend.
+- A chave existe **somente no backend**, recebida por variável de ambiente. A nível de repositório, a variável é declarada apenas no template do backend e ausente do frontend (implementado).
+- O frontend nunca recebe a chave; chamadas ao Google serão feitas apenas pelo backend (runtime planejado em `places-search`).
 - Devem ser respeitadas as políticas de armazenamento e atribuição do provedor.
 - A regra de negócio depende de uma interface de busca de estabelecimentos (abstração de provedor), não do cliente HTTP do Google.
 

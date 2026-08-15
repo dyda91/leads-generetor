@@ -1,0 +1,23 @@
+{
+  "name": "@leads/e2e",
+  "version": "0.1.0",
+  "private": true,
+  "description": "End-to-end tests (Playwright) for the leads-generator.",
+  "scripts": {
+    "test": "playwright test --pass-with-no-tests",
+    "test:ci": "playwright test",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
+  "devDependencies": {
+    "@leads/eslint-config": "workspace:*",
+    "@leads/typescript-config": "workspace:*",
+    "@playwright/test": "1.62.1",
+    "@types/node": "24.13.3",
+    "eslint": "9.39.5",
+    "prettier": "3.9.6",
+    "typescript": "5.9.3"
+  }
+}

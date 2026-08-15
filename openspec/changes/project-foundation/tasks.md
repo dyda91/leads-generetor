@@ -16,9 +16,9 @@
 
 ## 3. Qualidade
 
-- [ ] 3.1 Configurar husky + lint-staged (pre-commit: eslint --fix e prettier --write nos arquivos alterados)
-- [ ] 3.2 Criar config base do Playwright em apps/e2e
-- [ ] 3.3 Criar scripts raiz de verificação (lint, typecheck, test, build)
+- [x] 3.1 Configurar husky + lint-staged (pre-commit: eslint --fix e prettier --write nos arquivos alterados)
+- [x] 3.2 Criar config base do Playwright em apps/e2e
+- [x] 3.3 Criar scripts raiz de verificação (lint, typecheck, test, build)
 
 ## 4. Configuração e segredos
 

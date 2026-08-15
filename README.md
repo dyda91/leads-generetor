@@ -49,16 +49,21 @@ docker compose -f infrastructure/docker-compose.dev.yml up -d
 
 ## Comandos
 
-| Comando             | Descrição                                |
-| ------------------- | ---------------------------------------- |
-| `pnpm dev`          | Inicia web e api em modo desenvolvimento |
-| `pnpm build`        | Build de todos os workspaces             |
-| `pnpm lint`         | ESLint em todos os workspaces            |
-| `pnpm typecheck`    | Verificação de tipos                     |
-| `pnpm test`         | Testes de todos os workspaces            |
-| `pnpm format`       | Formata o código com Prettier            |
-| `pnpm format:check` | Verifica a formatação                    |
-| `pnpm check`        | lint + typecheck + test + build          |
+| Comando             | Descrição                                                            |
+| ------------------- | -------------------------------------------------------------------- |
+| `pnpm dev`          | Inicia web e api em modo desenvolvimento                             |
+| `pnpm build`        | Build de todos os workspaces                                         |
+| `pnpm lint`         | ESLint em todos os workspaces                                        |
+| `pnpm typecheck`    | Verificação de tipos                                                 |
+| `pnpm test`         | Testes de todos os workspaces                                        |
+| `pnpm format`       | Formata o código com Prettier                                        |
+| `pnpm format:check` | Verifica a formatação                                                |
+| `pnpm check`        | Gate completo: format + workspaces + lint + typecheck + test + build |
+
+## Qualidade
+
+- **Pre-commit (Husky + lint-staged):** executa `eslint --fix` e `prettier --write` apenas nos arquivos staged (extensões compatíveis). Não roda build nem E2E. Falhas bloqueiam o commit.
+- **Contratos de scripts por workspace:** ao criar um app, ele **deve** declarar `lint`, `typecheck` e `test` (`dev` e `build` obrigatórios para web/api). O gate `pnpm check:workspaces` falha se um workspace implementado não declarar os scripts obrigatórios. Pacotes de config/contracts (`*-config`, `@leads/contracts`) são isentos.
 
 ## Segurança
 

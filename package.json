@@ -14,10 +14,25 @@
     "test": "pnpm -r --if-present test",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "check": "pnpm lint && pnpm typecheck && pnpm test && pnpm build"
+    "prepare": "husky",
+    "check:workspaces": "node scripts/check-workspace-scripts.mjs",
+    "check": "pnpm format:check && pnpm check:workspaces && pnpm lint && pnpm typecheck && pnpm test && pnpm build"
+  },
+  "lint-staged": {
+    "*.{js,cjs,mjs,ts,tsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,md,yml,yaml}": [
+      "prettier --write"
+    ]
   },
   "devDependencies": {
     "@fission-ai/openspec": "1.7.0",
+    "@leads/eslint-config": "workspace:*",
+    "eslint": "9.39.5",
+    "husky": "9.1.7",
+    "lint-staged": "17.3.0",
     "prettier": "3.9.6",
     "typescript": "5.9.3"
   }

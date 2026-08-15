@@ -1,0 +1,40 @@
+name: leads-generator-dev
+
+services:
+  postgres:
+    # PostgreSQL oficial, versão exata fixada por digest imutável (amd64/arm64).
+    # Nunca usar "latest". Série 17 (PGDATA em /var/lib/postgresql/data).
+    image: postgres@sha256:f86c774c7a51d0f05133f2ab70e4c384b589170458ab1df1ba83426d7cc30da7
+    restart: unless-stopped
+    stop_grace_period: 30s
+    ports:
+      # Somente loopback: a API roda no host durante o desenvolvimento.
+      # Porta do host: 5433 -> porta interna do container: 5432.
+      # Nunca usar 0.0.0.0:5433:5432 nem 5433:5432.
+      - '127.0.0.1:5433:5432'
+    environment:
+      # Fail-fast: valores obrigatórios vêm de infrastructure/.env (gitignored).
+      POSTGRES_USER: ${POSTGRES_USER:?POSTGRES_USER é obrigatório - copie infrastructure/.env.example para infrastructure/.env}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD é obrigatório - copie infrastructure/.env.example para infrastructure/.env}
+      POSTGRES_DB: ${POSTGRES_DB:?POSTGRES_DB é obrigatório - copie infrastructure/.env.example para infrastructure/.env}
+    volumes:
+      # Persistência dos dados em volume nomeado.
+      - leads-postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      # pg_isready não envia credenciais nem autentica; não expõe senha.
+      test:
+        - 'CMD-SHELL'
+        - 'pg_isready -U "$${POSTGRES_USER}" -d "$${POSTGRES_DB}"'
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 10s
+    networks:
+      - leads-dev
+
+volumes:
+  leads-postgres-data:
+
+networks:
+  leads-dev:
+    driver: bridge

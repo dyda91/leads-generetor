@@ -7,7 +7,7 @@ The repository is empty: no structure, tooling, conventions, or security baselin
 - Create a pnpm-workspaces monorepo with `apps/web`, `apps/api`, `apps/e2e`, `packages/contracts`, `packages/eslint-config`, `packages/typescript-config`, `infrastructure`, `docs`, `scripts`, and `openspec`.
 - Define code, formatting, and commit conventions; add ESLint (flat config), Prettier, lint-staged, and husky.
 - Establish a configuration and secrets strategy: per-app `.env` files gitignored (`**/.env`, `**/.env.*`); `.env.example` explicitly allowed (`!**/.env.example`) and committed with non-secret placeholders only; fail-fast validation of environment variables at backend startup.
-- Add development Docker: PostgreSQL pinned image, non-root, healthcheck, internal network, port published to the host loopback only (`127.0.0.1:5432:5432`); production must not publish the database port publicly.
+- Add development Docker: PostgreSQL pinned image, non-root, healthcheck, internal network, port published to the host loopback only (`127.0.0.1:5433:5432` — host port 5433, container port 5432); production must not publish the database port publicly.
 - Document architecture, security principles, and initial architectural decisions (ADRs).
 - Declare the frontend/backend responsibility boundary: Google Places is accessed only by the backend; the API key never reaches the frontend.
 

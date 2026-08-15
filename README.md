@@ -44,8 +44,35 @@ openspec/       Especificações e mudanças (Spec-Driven Development)
 ```bash
 corepack enable
 pnpm install
-docker compose -f infrastructure/docker-compose.dev.yml up -d
 ```
+
+## Desenvolvimento (PostgreSQL)
+
+O banco de desenvolvimento roda via Docker Compose (`infrastructure/docker-compose.dev.yml`). A API será executada no host durante o desenvolvimento, por isso a porta é publicada **somente em loopback** — porta do host `5433` apontando para a porta interna do container `5432` (`127.0.0.1:5433:5432`) — nunca `0.0.0.0`. **Em produção o PostgreSQL não possui porta publicada.**
+
+1. Configure os valores locais sem expor segredos no Git (o `.env` é ignorado):
+   ```bash
+   cp infrastructure/.env.example infrastructure/.env
+   # edite infrastructure/.env com credenciais locais de desenvolvimento
+   ```
+2. Suba o banco:
+   ```bash
+   docker compose -f infrastructure/docker-compose.dev.yml up -d postgres
+   ```
+3. Pare ao terminar:
+   ```bash
+   docker compose -f infrastructure/docker-compose.dev.yml down
+   ```
+
+Diagnóstico:
+
+```bash
+docker compose -f infrastructure/docker-compose.dev.yml ps
+docker compose -f infrastructure/docker-compose.dev.yml logs postgres
+docker compose -f infrastructure/docker-compose.dev.yml exec postgres pg_isready -U leads_dev -d leads_dev
+```
+
+O processo do PostgreSQL executa sem root (entrypoint oficial). Os dados persistem em volume nomeado (`leads-postgres-data`). A `DATABASE_URL` da API não é montada automaticamente: configure-a localmente no `apps/api/.env` (ver `apps/api/.env.example`).
 
 ## Comandos
 
@@ -70,6 +97,6 @@ docker compose -f infrastructure/docker-compose.dev.yml up -d
 - A chave da Google Places API existe **somente no backend**, carregada por variável de ambiente. Nunca chega ao frontend, a respostas da API, a logs ou a testes.
 - Arquivos `.env` reais são ignorados pelo git; apenas `.env.example` (placeholders não secretos) é versionado. O frontend não possui `GOOGLE_PLACES_API_KEY` e nenhuma variável `VITE_*` contém segredo.
 - **Detecção de segredos (secretlint):** `pnpm check:secrets` varre arquivos versionados/staged; o pre-commit também verifica os staged. Nenhuma ferramenta garante detecção total — revisão humana adicional é recomendada.
-- O PostgreSQL de desenvolvimento expõe a porta somente em loopback (`127.0.0.1:5432`); em produção nenhuma porta do banco é publicada.
+- O PostgreSQL de desenvolvimento expõe a porta somente em loopback (`127.0.0.1:5433` no host → `5432` no container); em produção nenhuma porta do banco é publicada.
 
 Detalhes: `docs/architecture/` e `docs/security/`.

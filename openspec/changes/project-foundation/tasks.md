@@ -29,10 +29,10 @@
 
 ## 5. Docker de desenvolvimento
 
-- [ ] 5.1 Criar `infrastructure/docker-compose.dev.yml` com PostgreSQL (imagem fixada, usuário não-root, healthcheck, rede interna)
-- [ ] 5.2 Publicar a porta do PostgreSQL somente em loopback: `127.0.0.1:5432:5432` (nunca 0.0.0.0)
-- [ ] 5.3 Adicionar volume nomeado de persistência e documentar que o acesso é apenas local
-- [ ] 5.4 Documentar no README que em produção o PostgreSQL não possui porta publicamente publicada
+- [x] 5.1 Criar `infrastructure/docker-compose.dev.yml` com PostgreSQL (imagem fixada, usuário não-root, healthcheck, rede interna)
+- [x] 5.2 Publicar a porta do PostgreSQL somente em loopback: host `127.0.0.1:5433` → container `5432` (`127.0.0.1:5433:5432`, nunca 0.0.0.0)
+- [x] 5.3 Adicionar volume nomeado de persistência e documentar que o acesso é apenas local
+- [x] 5.4 Documentar no README que em produção o PostgreSQL não possui porta publicamente publicada
 
 ## 6. Documentação
 

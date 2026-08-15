@@ -12,8 +12,8 @@ Critério de conclusão: `lint`, `typecheck` e `check:workspaces` sem erros; app
 
 Comandos: `pnpm --filter @leads/api test` (testes unitários de configuração) · `pnpm --filter @leads/api build`
 
-- [ ] 2.1 Schema de validação de ambiente com zod (obrigatórios; regras por NODE_ENV; produção rejeita CORS wildcard/debug)
-- [ ] 2.2 Integração do ConfigModule global com validação no boot; falha encerra o processo sem imprimir valores
+- [x] 2.1 Schema de validação de ambiente com zod (obrigatórios; regras por NODE_ENV; produção rejeita CORS wildcard/debug)
+- [x] 2.2 Integração do ConfigModule global com validação no boot; falha encerra o processo sem imprimir valores
 
 Critério de conclusão: testes negativos comprovam bloqueio para variável ausente/inválida/insegura; falha não imprime o valor; config válida inicia.
 

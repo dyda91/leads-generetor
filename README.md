@@ -68,7 +68,8 @@ docker compose -f infrastructure/docker-compose.dev.yml up -d
 ## Segurança
 
 - A chave da Google Places API existe **somente no backend**, carregada por variável de ambiente. Nunca chega ao frontend, a respostas da API, a logs ou a testes.
-- Arquivos `.env` reais são ignorados pelo git; apenas `.env.example` (placeholders não secretos) é versionado.
+- Arquivos `.env` reais são ignorados pelo git; apenas `.env.example` (placeholders não secretos) é versionado. O frontend não possui `GOOGLE_PLACES_API_KEY` e nenhuma variável `VITE_*` contém segredo.
+- **Detecção de segredos (secretlint):** `pnpm check:secrets` varre arquivos versionados/staged; o pre-commit também verifica os staged. Nenhuma ferramenta garante detecção total — revisão humana adicional é recomendada.
 - O PostgreSQL de desenvolvimento expõe a porta somente em loopback (`127.0.0.1:5432`); em produção nenhuma porta do banco é publicada.
 
 Detalhes: `docs/architecture/` e `docs/security/`.

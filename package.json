@@ -16,9 +16,13 @@
     "format:check": "prettier --check .",
     "prepare": "husky",
     "check:workspaces": "node scripts/check-workspace-scripts.mjs",
-    "check": "pnpm format:check && pnpm check:workspaces && pnpm lint && pnpm typecheck && pnpm test && pnpm build"
+    "check:secrets": "node scripts/check-secrets.mjs",
+    "check": "pnpm format:check && pnpm check:workspaces && pnpm check:secrets && pnpm lint && pnpm typecheck && pnpm test && pnpm build"
   },
   "lint-staged": {
+    "**/*": [
+      "secretlint --no-glob"
+    ],
     "*.{js,cjs,mjs,ts,tsx}": [
       "eslint --fix",
       "prettier --write"
@@ -30,10 +34,14 @@
   "devDependencies": {
     "@fission-ai/openspec": "1.7.0",
     "@leads/eslint-config": "workspace:*",
+    "@secretlint/secretlint-rule-no-dotenv": "13.0.4",
+    "@secretlint/secretlint-rule-pattern": "13.0.4",
+    "@secretlint/secretlint-rule-preset-recommend": "13.0.4",
     "eslint": "9.39.5",
     "husky": "9.1.7",
     "lint-staged": "17.3.0",
     "prettier": "3.9.6",
+    "secretlint": "13.0.4",
     "typescript": "5.9.3"
   }
 }

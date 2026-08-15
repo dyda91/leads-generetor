@@ -22,10 +22,10 @@
 
 ## 4. Configuração e segredos
 
-- [ ] 4.1 Criar `.env.example` em apps/api e apps/web com apenas placeholders não secretos
-- [ ] 4.2 Criar `scripts/check-secrets` (varredura de padrões de segredo em arquivos versionados) e incluí-lo nos gates
-- [ ] 4.3 Confirmar com `git check-ignore` que `.env` é ignorado e `.env.local` é ignorado
-- [ ] 4.4 Confirmar com `git check-ignore` que `.env.example` NÃO é ignorado
+- [x] 4.1 Criar `.env.example` em apps/api e apps/web com apenas placeholders não secretos
+- [x] 4.2 Criar `scripts/check-secrets` (varredura de padrões de segredo em arquivos versionados) e incluí-lo nos gates
+- [x] 4.3 Confirmar com `git check-ignore` que `.env` é ignorado e `.env.local` é ignorado
+- [x] 4.4 Confirmar com `git check-ignore` que `.env.example` NÃO é ignorado
 
 ## 5. Docker de desenvolvimento
 

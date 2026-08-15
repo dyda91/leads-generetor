@@ -36,9 +36,9 @@
 
 ## 6. Documentação
 
-- [ ] 6.1 docs/architecture/README.md (visão arquitetural, limites frontend/backend, fluxo Google Places backend-only)
-- [ ] 6.2 docs/security/README.md (princípios de segurança e mapa dos requisitos por mudança)
-- [ ] 6.3 docs/decisions: ADR-0001 monorepo pnpm, ADR-0002 Google Places backend-only, ADR-0003 validação fail-fast de config, ADR-0004 stack de testes, ADR-0005 Docker dev e redes (loopback-only)
+- [x] 6.1 docs/architecture/README.md (visão arquitetural, limites frontend/backend, fluxo Google Places backend-only)
+- [x] 6.2 docs/security/README.md (princípios de segurança e mapa dos requisitos por mudança)
+- [x] 6.3 docs/decisions: ADR-0001 monorepo pnpm, ADR-0002 Google Places backend-only, ADR-0003 validação fail-fast de config, ADR-0004 stack de testes, ADR-0005 Docker dev e redes (loopback-only)
 
 ## 7. Validação da fundação
 

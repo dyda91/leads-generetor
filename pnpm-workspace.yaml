@@ -4,3 +4,5 @@ packages:
 
 allowBuilds:
   '@fission-ai/openspec': false
+  # Native binding shipped via optionalDependencies; postinstall (napi-postinstall) not required.
+  unrs-resolver: false

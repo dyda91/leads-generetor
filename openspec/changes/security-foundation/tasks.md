@@ -2,9 +2,9 @@
 
 Comandos: `pnpm --filter @leads/api lint` · `pnpm --filter @leads/api typecheck` · `pnpm check:workspaces`
 
-- [ ] 1.1 Criar `apps/api` (package.json `@leads/api`, tsconfig estrito via `@leads/typescript-config/api`, `nest-cli.json`, `eslint.config.mjs` via `@leads/eslint-config/node`, `.env.example` atualizado)
-- [ ] 1.2 Declarar dependências e scripts reais `dev`, `build`, `lint`, `typecheck`, `test`
-- [ ] 1.3 Criar `main.ts` e módulo raiz com `enableShutdownHooks()` e desabilitação de `X-Powered-By`
+- [x] 1.1 Criar `apps/api` (package.json `@leads/api`, tsconfig estrito via `@leads/typescript-config/api`, `nest-cli.json`, `eslint.config.mjs` via `@leads/eslint-config/node`, `.env.example` atualizado)
+- [x] 1.2 Declarar dependências e scripts reais `dev`, `build`, `lint`, `typecheck`, `test`
+- [x] 1.3 Criar `main.ts` e módulo raiz com `enableShutdownHooks()` e desabilitação de `X-Powered-By`
 
 Critério de conclusão: `lint`, `typecheck` e `check:workspaces` sem erros; app inicia com configuração válida.
 

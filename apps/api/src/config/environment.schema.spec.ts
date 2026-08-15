@@ -76,7 +76,12 @@ describe('parseEnvironment', () => {
 
   it('accepts a valid configuration', () => {
     const environment = parseEnvironment(validDev);
-    expect(environment).toEqual({ NODE_ENV: 'development', PORT: 3000, CORS_ORIGINS: [] });
+    expect(environment).toEqual({
+      NODE_ENV: 'development',
+      PORT: 3000,
+      CORS_ORIGINS: [],
+      BODY_LIMIT_BYTES: 100_000,
+    });
   });
 
   it('ignores unknown system variables', () => {
@@ -86,7 +91,12 @@ describe('parseEnvironment', () => {
       HOME: '/root',
       TERM: 'xterm-256color',
     });
-    expect(environment).toEqual({ NODE_ENV: 'development', PORT: 3000, CORS_ORIGINS: [] });
+    expect(environment).toEqual({
+      NODE_ENV: 'development',
+      PORT: 3000,
+      CORS_ORIGINS: [],
+      BODY_LIMIT_BYTES: 100_000,
+    });
   });
 
   it('does not require DATABASE_URL yet', () => {
@@ -129,5 +139,92 @@ describe('parseEnvironment', () => {
       CORS_ORIGINS: '*',
     }).issues;
     expect(hasIssue(issues, 'CORS_ORIGINS', 'wildcard_forbidden_in_production')).toBe(true);
+  });
+
+  it('rejects a CORS wildcard in development', () => {
+    const issues = validationErrorFor({
+      NODE_ENV: 'development',
+      PORT: '3000',
+      CORS_ORIGINS: '*',
+    }).issues;
+    expect(hasIssue(issues, 'CORS_ORIGINS', 'invalid')).toBe(true);
+  });
+
+  it('rejects an HTTP origin in production', () => {
+    const issues = validationErrorFor({
+      NODE_ENV: 'production',
+      PORT: '443',
+      CORS_ORIGINS: 'http://app.example.com',
+    }).issues;
+    expect(hasIssue(issues, 'CORS_ORIGINS', 'https_required_in_production')).toBe(true);
+  });
+
+  it('rejects the special null origin', () => {
+    const issues = validationErrorFor({
+      NODE_ENV: 'test',
+      PORT: '3000',
+      CORS_ORIGINS: 'null',
+    }).issues;
+    expect(hasIssue(issues, 'CORS_ORIGINS', 'invalid')).toBe(true);
+  });
+
+  it('rejects empty entries between CORS separators', () => {
+    const issues = validationErrorFor({
+      NODE_ENV: 'test',
+      PORT: '3000',
+      CORS_ORIGINS: 'https://a.example.com,,https://b.example.com',
+    }).issues;
+    expect(hasIssue(issues, 'CORS_ORIGINS', 'invalid')).toBe(true);
+  });
+
+  it('rejects CORS origins with credentials, query, fragment or path', () => {
+    const userinfoOrigin = `https://user:pass${'@a.example.com'}`;
+    for (const origin of [
+      userinfoOrigin,
+      'https://a.example.com?x=1',
+      'https://a.example.com#frag',
+      'https://a.example.com/path',
+    ]) {
+      const issues = validationErrorFor({
+        NODE_ENV: 'test',
+        PORT: '3000',
+        CORS_ORIGINS: origin,
+      }).issues;
+      expect(hasIssue(issues, 'CORS_ORIGINS', 'invalid')).toBe(true);
+    }
+  });
+
+  it('normalizes and deduplicates CORS origins', () => {
+    const environment = parseEnvironment({
+      NODE_ENV: 'test',
+      PORT: '3000',
+      CORS_ORIGINS: 'https://App.Example.com:443, https://a.example.com, https://app.example.com',
+    });
+    expect(environment.CORS_ORIGINS).toEqual(['https://app.example.com', 'https://a.example.com']);
+  });
+
+  it('applies the default body limit when absent', () => {
+    const environment = parseEnvironment(validDev);
+    expect(environment.BODY_LIMIT_BYTES).toBe(100_000);
+  });
+
+  it('accepts an explicit body limit within range', () => {
+    const environment = parseEnvironment({ ...validDev, BODY_LIMIT_BYTES: '250000' });
+    expect(environment.BODY_LIMIT_BYTES).toBe(250_000);
+  });
+
+  it('rejects a non-numeric body limit', () => {
+    const issues = validationErrorFor({ ...validDev, BODY_LIMIT_BYTES: 'abc' }).issues;
+    expect(hasIssue(issues, 'BODY_LIMIT_BYTES', 'invalid')).toBe(true);
+  });
+
+  it('rejects a fractional body limit', () => {
+    const issues = validationErrorFor({ ...validDev, BODY_LIMIT_BYTES: '100.5' }).issues;
+    expect(hasIssue(issues, 'BODY_LIMIT_BYTES', 'invalid')).toBe(true);
+  });
+
+  it('rejects a body limit above the maximum', () => {
+    const issues = validationErrorFor({ ...validDev, BODY_LIMIT_BYTES: '20000000' }).issues;
+    expect(hasIssue(issues, 'BODY_LIMIT_BYTES', 'out_of_range')).toBe(true);
   });
 });

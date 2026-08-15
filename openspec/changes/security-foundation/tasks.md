@@ -21,9 +21,9 @@ Critério de conclusão: testes negativos comprovam bloqueio para variável ause
 
 Comandos: `pnpm --filter @leads/api test` · `pnpm --filter @leads/api lint`
 
-- [ ] 3.1 Aplicar Helmet com política CSP restritiva para API sem HTML (no mínimo `default-src 'none'`, `frame-ancestors 'none'`, `base-uri 'none'`), validada contra a versão real do Helmet e sem desativação global; HSTS somente em produção; remover `X-Powered-By`
-- [ ] 3.2 Configurar CORS com allowlist via `CORS_ORIGINS` comparando origem completa e normalizada; wildcard proibido em produção; `credentials` desabilitada; no-Origin documentado
-- [ ] 3.3 Definir limites explícitos de corpo JSON e URL-encoded (padrão 100 KB; `BODY_LIMIT` com teto máximo no schema), sem parsers duplicados; limitar quantidade/tamanho de parâmetros quando aplicável; query parser com estratégia simples documentada (`query parser: 'simple'`)
+- [x] 3.1 Aplicar Helmet com política CSP restritiva para API sem HTML (no mínimo `default-src 'none'`, `frame-ancestors 'none'`, `base-uri 'none'`), validada contra a versão real do Helmet e sem desativação global; HSTS somente em produção; remover `X-Powered-By`
+- [x] 3.2 Configurar CORS com allowlist via `CORS_ORIGINS` comparando origem completa e normalizada; wildcard proibido em produção; `credentials` desabilitada; no-Origin documentado
+- [x] 3.3 Definir limites explícitos de corpo JSON e URL-encoded (padrão 100 KB; `BODY_LIMIT_BYTES` com teto máximo no schema), sem parsers duplicados; limitar quantidade/tamanho de parâmetros quando aplicável; query parser com estratégia simples documentada (`query parser: 'simple'`)
 
 Critério de conclusão: testes de headers (Helmet, CSP com presença/valores esperados, HSTS em produção/ausente em dev/test, ausência de X-Powered-By/versão) e de CORS (origem autorizada/não autorizada, origem completa normalizada, wildcard em produção, no-Origin documentado, credentials desabilitada) verdes; payload acima do limite (JSON e URL-encoded) rejeitado.
 

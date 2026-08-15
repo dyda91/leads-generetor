@@ -4,11 +4,10 @@ import { NestFactory } from '@nestjs/core';
 import type { NestExpressApplication } from '@nestjs/platform-express';
 
 import { AppModule } from './app.module';
+import { BIND_HOST, applySecurityMiddleware } from './bootstrap';
 import { EnvironmentValidationError, parseEnvironment } from './config/environment.schema';
 import { EnvironmentService } from './config/environment.service';
 import type { Environment } from './config/environment.types';
-
-const BIND_HOST = '127.0.0.1';
 
 function reportEnvironmentFailure(error: unknown): void {
   if (error instanceof EnvironmentValidationError) {
@@ -31,8 +30,10 @@ async function bootstrap(): Promise<void> {
     process.exit(1);
   }
 
-  const app = await NestFactory.create<NestExpressApplication>(AppModule.register(environment));
-  app.disable('x-powered-by');
+  const app = await NestFactory.create<NestExpressApplication>(AppModule.register(environment), {
+    bodyParser: false,
+  });
+  applySecurityMiddleware(app, environment);
   app.enableShutdownHooks();
 
   const environmentService = app.get(EnvironmentService);

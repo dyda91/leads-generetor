@@ -49,16 +49,16 @@ docker compose -f infrastructure/docker-compose.dev.yml up -d
 
 ## Comandos
 
-| Comando            | Descrição                                    |
-| ------------------ | -------------------------------------------- |
-| `pnpm dev`         | Inicia web e api em modo desenvolvimento     |
-| `pnpm build`       | Build de todos os workspaces                 |
-| `pnpm lint`        | ESLint em todos os workspaces                |
-| `pnpm typecheck`   | Verificação de tipos                         |
-| `pnpm test`        | Testes de todos os workspaces                |
-| `pnpm format`      | Formata o código com Prettier                |
-| `pnpm format:check`| Verifica a formatação                        |
-| `pnpm check`       | lint + typecheck + test + build              |
+| Comando             | Descrição                                |
+| ------------------- | ---------------------------------------- |
+| `pnpm dev`          | Inicia web e api em modo desenvolvimento |
+| `pnpm build`        | Build de todos os workspaces             |
+| `pnpm lint`         | ESLint em todos os workspaces            |
+| `pnpm typecheck`    | Verificação de tipos                     |
+| `pnpm test`         | Testes de todos os workspaces            |
+| `pnpm format`       | Formata o código com Prettier            |
+| `pnpm format:check` | Verifica a formatação                    |
+| `pnpm check`        | lint + typecheck + test + build          |
 
 ## Segurança
 

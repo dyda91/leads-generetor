@@ -6,12 +6,13 @@
 - [x] 1.4 Criar `package.json` raiz com `packageManager: "pnpm@11.21.0"` e scripts (dev, build, lint, typecheck, test, format, check)
 - [x] 1.5 Criar `pnpm-workspace.yaml` listando os workspaces
 - [x] 1.6 Criar `README.md` raiz (visão geral, stack, setup, comandos)
+- [x] 1.7 Criar `AGENTS.md` raiz com regras permanentes para agentes de código (processo, segurança, qualidade)
 
 ## 2. Configuração compartilhada
 
-- [ ] 2.1 packages/typescript-config: `tsconfig.base.json` (strict), `tsconfig.web.json`, `tsconfig.api.json` e metadados do pacote
-- [ ] 2.2 packages/eslint-config: configs flat base/react/node + integração Prettier
-- [ ] 2.3 Prettier raiz (`.prettierrc`, `.prettierignore`) e script `format:check`
+- [x] 2.1 packages/typescript-config: `tsconfig.base.json` (strict), `tsconfig.web.json`, `tsconfig.api.json` e metadados do pacote
+- [x] 2.2 packages/eslint-config: configs flat base/react/node + integração Prettier
+- [x] 2.3 Prettier raiz (`.prettierrc`, `.prettierignore`) e script `format:check`
 
 ## 3. Qualidade
 

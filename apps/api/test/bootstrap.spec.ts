@@ -121,6 +121,24 @@ describe('bootstrap process', () => {
     await expect(isPortOpen(port)).resolves.toBe(false);
   }, 20000);
 
+  it('exits without opening a socket when the rate limit configuration is invalid', async () => {
+    const port = await freePort();
+    const child = spawnApi({ NODE_ENV: 'test', PORT: String(port), RATE_LIMIT_MAX: '0' });
+
+    let stderr = '';
+    child.stderr?.on('data', (chunk) => {
+      stderr += chunk.toString();
+    });
+
+    const exitCode = await waitForExit(child, 10000);
+
+    expect(exitCode).toBe(1);
+    expect(stderr).toContain('RATE_LIMIT_MAX');
+    expect(stderr).not.toContain('0');
+
+    await expect(isPortOpen(port)).resolves.toBe(false);
+  }, 20000);
+
   it('boots and listens on the configured loopback port with a valid configuration', async () => {
     const port = await freePort();
     const child = spawnApi({ NODE_ENV: 'development', PORT: String(port) });

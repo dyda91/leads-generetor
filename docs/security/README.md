@@ -66,6 +66,14 @@ Ameaças consideradas nesta fase:
 | Auditoria de ações sensíveis                                                                                                | Planejado    | `audit-and-observability`                             |
 | Hardening de produção (containers não-root, imagens fixadas, .env validado)                                                 | Planejado    | `production-hardening-and-deployment`                 |
 
+## Rate limiting
+
+- **Instância única:** a proteção atual usa um armazenamento **in-memory local** (`@nestjs/throttler`), válido apenas para uma única instância do processo. Múltiplas instâncias exigirão um armazenamento coordenado (ex.: Redis) — decisão de `production-hardening-and-deployment`.
+- **Proxy:** `trust proxy` permanece desligado e nenhuma heurística de `X-Forwarded-For`/`X-Real-IP` é implementada. O tracker usa somente o endereço observado pelo Express (`req.ip`); a configuração correta de proxy pertence a `production-hardening-and-deployment`.
+- **Limites:** configuração tipada (`RATE_LIMIT_TTL_MS`, `RATE_LIMIT_MAX`) validada no boot; produção rejeita limites que tornem a proteção ineficaz.
+- **Relação com outros controles:** CORS **não** substitui rate limit; rate limit **não** substitui autenticação/autorização.
+- Headers de rate limit (`Retry-After`, `X-RateLimit-*`) não são emitidos nesta mudança; o 429 segue o contrato de erro padrão (`RATE_LIMIT_EXCEEDED`).
+
 ## Portas e serviços
 
 - **Desenvolvimento:** PostgreSQL em container, publicado **somente em loopback** — host `127.0.0.1:5433` → container `5432`. Nenhuma outra porta é publicada.

@@ -41,8 +41,8 @@ Critério de conclusão: testes negativos de validação (propriedades desconhec
 
 Comandos: `pnpm --filter @leads/api test`
 
-- [ ] 5.1 Configurar guard global `@nestjs/throttler`; excesso retorna 429; headers sem informações sensíveis
-- [ ] 5.2 Manter `trust proxy` desabilitado; documentar que o limiter in-memory serve apenas para instância única; nenhuma heurística de `X-Forwarded-For`; configuração explícita para hospedagem atrás de proxy fica para `production-hardening-and-deployment`
+- [x] 5.1 Configurar guard global `@nestjs/throttler`; excesso retorna 429; headers sem informações sensíveis
+- [x] 5.2 Manter `trust proxy` desabilitado; documentar que o limiter in-memory serve apenas para instância única; nenhuma heurística de `X-Forwarded-For`; configuração explícita para hospedagem atrás de proxy fica para `production-hardening-and-deployment`
 
 Critério de conclusão: teste negativo de 429 verde; documentação da estratégia de IP real atrás de proxy e da limitação de instância única registrada.
 

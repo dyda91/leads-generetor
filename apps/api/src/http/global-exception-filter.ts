@@ -102,6 +102,8 @@ export class GlobalExceptionFilter implements ExceptionFilter {
         return ERROR_CATALOG.PAYLOAD_TOO_LARGE;
       case 415:
         return ERROR_CATALOG.UNSUPPORTED_MEDIA_TYPE;
+      case 429:
+        return ERROR_CATALOG.RATE_LIMIT_EXCEEDED;
       default:
         return ERROR_CATALOG.INTERNAL_SERVER_ERROR;
     }

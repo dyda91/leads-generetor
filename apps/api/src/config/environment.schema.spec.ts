@@ -81,6 +81,8 @@ describe('parseEnvironment', () => {
       PORT: 3000,
       CORS_ORIGINS: [],
       BODY_LIMIT_BYTES: 100_000,
+      RATE_LIMIT_TTL_MS: 60_000,
+      RATE_LIMIT_MAX: 100,
     });
   });
 
@@ -96,6 +98,8 @@ describe('parseEnvironment', () => {
       PORT: 3000,
       CORS_ORIGINS: [],
       BODY_LIMIT_BYTES: 100_000,
+      RATE_LIMIT_TTL_MS: 60_000,
+      RATE_LIMIT_MAX: 100,
     });
   });
 
@@ -228,5 +232,60 @@ describe('parseEnvironment', () => {
       const issues = validationErrorFor({ ...validDev, BODY_LIMIT_BYTES: value }).issues;
       expect(hasIssue(issues, 'BODY_LIMIT_BYTES', 'out_of_range')).toBe(true);
     }
+  });
+
+  it('applies the default rate limit when absent', () => {
+    const environment = parseEnvironment(validDev);
+    expect(environment.RATE_LIMIT_MAX).toBe(100);
+    expect(environment.RATE_LIMIT_TTL_MS).toBe(60_000);
+  });
+
+  it('accepts explicit rate limit values', () => {
+    const environment = parseEnvironment({
+      ...validDev,
+      RATE_LIMIT_TTL_MS: '30000',
+      RATE_LIMIT_MAX: '50',
+    });
+    expect(environment.RATE_LIMIT_TTL_MS).toBe(30_000);
+    expect(environment.RATE_LIMIT_MAX).toBe(50);
+  });
+
+  it('rejects invalid rate limit values', () => {
+    for (const [field, value] of [
+      ['RATE_LIMIT_TTL_MS', '0'],
+      ['RATE_LIMIT_TTL_MS', '-1'],
+      ['RATE_LIMIT_TTL_MS', 'abc'],
+      ['RATE_LIMIT_TTL_MS', '100.5'],
+      ['RATE_LIMIT_TTL_MS', '1000abc'],
+      ['RATE_LIMIT_TTL_MS', '4000000'],
+      ['RATE_LIMIT_TTL_MS', '500'],
+      ['RATE_LIMIT_MAX', '0'],
+      ['RATE_LIMIT_MAX', '-1'],
+      ['RATE_LIMIT_MAX', 'abc'],
+      ['RATE_LIMIT_MAX', '10.5'],
+      ['RATE_LIMIT_MAX', '100abc'],
+      ['RATE_LIMIT_MAX', '20000'],
+    ] as const) {
+      const issues = validationErrorFor({ ...validDev, [field]: value }).issues;
+      expect(issues.some((issue) => issue.field === field)).toBe(true);
+    }
+  });
+
+  it('rejects a rate limit that would be ineffective in production', () => {
+    const issues = validationErrorFor({
+      NODE_ENV: 'production',
+      PORT: '443',
+      RATE_LIMIT_MAX: '2000',
+    }).issues;
+    expect(hasIssue(issues, 'RATE_LIMIT_MAX', 'rate_limit_production_ineffective')).toBe(true);
+  });
+
+  it('accepts a rate limit at the production cap', () => {
+    const environment = parseEnvironment({
+      NODE_ENV: 'production',
+      PORT: '443',
+      RATE_LIMIT_MAX: '1000',
+    });
+    expect(environment.RATE_LIMIT_MAX).toBe(1000);
   });
 });

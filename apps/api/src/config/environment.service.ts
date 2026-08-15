@@ -12,12 +12,16 @@ export class EnvironmentService {
     const port = config.get<number>('PORT');
     const corsOrigins = config.get<readonly string[]>('CORS_ORIGINS');
     const bodyLimitBytes = config.get<number>('BODY_LIMIT_BYTES');
+    const rateLimitTtlMs = config.get<number>('RATE_LIMIT_TTL_MS');
+    const rateLimitMax = config.get<number>('RATE_LIMIT_MAX');
 
     if (
       nodeEnv === undefined ||
       port === undefined ||
       corsOrigins === undefined ||
-      bodyLimitBytes === undefined
+      bodyLimitBytes === undefined ||
+      rateLimitTtlMs === undefined ||
+      rateLimitMax === undefined
     ) {
       throw new Error('Validated environment is not available.');
     }
@@ -27,6 +31,8 @@ export class EnvironmentService {
       PORT: port,
       CORS_ORIGINS: corsOrigins,
       BODY_LIMIT_BYTES: bodyLimitBytes,
+      RATE_LIMIT_TTL_MS: rateLimitTtlMs,
+      RATE_LIMIT_MAX: rateLimitMax,
     };
   }
 
@@ -44,6 +50,14 @@ export class EnvironmentService {
 
   get bodyLimitBytes(): number {
     return this.environment.BODY_LIMIT_BYTES;
+  }
+
+  get rateLimitTtlMs(): number {
+    return this.environment.RATE_LIMIT_TTL_MS;
+  }
+
+  get rateLimitMax(): number {
+    return this.environment.RATE_LIMIT_MAX;
   }
 
   get isProduction(): boolean {

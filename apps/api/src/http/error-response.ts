@@ -38,6 +38,10 @@ export const ERROR_CATALOG = {
     message: 'The request body is not valid JSON.',
   },
   BAD_REQUEST: { error: 'BAD_REQUEST', message: 'The request is invalid.' },
+  RATE_LIMIT_EXCEEDED: {
+    error: 'RATE_LIMIT_EXCEEDED',
+    message: 'Too many requests',
+  },
   INTERNAL_SERVER_ERROR: {
     error: 'INTERNAL_SERVER_ERROR',
     message: 'An unexpected error occurred.',

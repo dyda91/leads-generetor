@@ -1,5 +1,7 @@
 import { Module } from '@nestjs/common';
+import { APP_GUARD } from '@nestjs/core';
 import { ConfigModule } from '@nestjs/config';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import type { DynamicModule } from '@nestjs/common';
 
 import { EnvironmentService } from './config/environment.service';
@@ -17,8 +19,21 @@ export class AppModule {
           skipProcessEnv: true,
           load: [() => environment],
         }),
+        ThrottlerModule.forRoot([
+          {
+            ttl: environment.RATE_LIMIT_TTL_MS,
+            limit: environment.RATE_LIMIT_MAX,
+            setHeaders: false,
+          },
+        ]),
       ],
-      providers: [EnvironmentService],
+      providers: [
+        EnvironmentService,
+        {
+          provide: APP_GUARD,
+          useClass: ThrottlerGuard,
+        },
+      ],
       exports: [EnvironmentService],
     };
   }

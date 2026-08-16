@@ -66,8 +66,9 @@ export function applyHttpSecurity(app: NestExpressApplication, environment: Envi
 
   app.enableCors({
     origin: corsOriginCallback(new Set(environment.CORS_ORIGINS)),
-    credentials: false,
+    credentials: true,
     methods: CORS_METHODS,
+    allowedHeaders: ['Content-Type', 'X-CSRF-Token'],
   });
 
   app.use(

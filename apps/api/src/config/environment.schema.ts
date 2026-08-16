@@ -58,7 +58,7 @@ const emptyStringToUndefined = z.preprocess(
   z.string().trim().optional(),
 );
 
-const databaseUrlSchema = nonEmptyString.superRefine((value, context) => {
+export const databaseUrlSchema = nonEmptyString.superRefine((value, context) => {
   let url: URL;
   try {
     url = new URL(value);
@@ -121,25 +121,25 @@ const sessionTouchIntervalMsSchema = optionalIntInRange(
   DEFAULT_SESSION_TOUCH_INTERVAL_MS,
 );
 
-const argon2MemoryCostSchema = optionalIntInRange(
+export const argon2MemoryCostSchema = optionalIntInRange(
   MIN_ARGON2_MEMORY_COST,
   MAX_ARGON2_MEMORY_COST,
   DEFAULT_ARGON2_MEMORY_COST,
 );
 
-const argon2TimeCostSchema = optionalIntInRange(
+export const argon2TimeCostSchema = optionalIntInRange(
   MIN_ARGON2_TIME_COST,
   MAX_ARGON2_TIME_COST,
   DEFAULT_ARGON2_TIME_COST,
 );
 
-const argon2ParallelismSchema = optionalIntInRange(
+export const argon2ParallelismSchema = optionalIntInRange(
   MIN_ARGON2_PARALLELISM,
   MAX_ARGON2_PARALLELISM,
   DEFAULT_ARGON2_PARALLELISM,
 );
 
-const argon2HashLengthSchema = optionalIntInRange(
+export const argon2HashLengthSchema = optionalIntInRange(
   MIN_ARGON2_HASH_LENGTH,
   MAX_ARGON2_HASH_LENGTH,
   DEFAULT_ARGON2_HASH_LENGTH,

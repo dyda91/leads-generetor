@@ -8,6 +8,7 @@ import { EnvironmentService } from './config/environment.service';
 import type { Environment } from './config/environment.types';
 import { HealthModule } from './health/health.module';
 import { PrismaModule } from './prisma/prisma.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({})
 export class AppModule {
@@ -29,6 +30,7 @@ export class AppModule {
           },
         ]),
         HealthModule,
+        AuthModule,
         // Persistence is always wired now: DATABASE_URL is required in every environment.
         PrismaModule.register(environment.DATABASE_URL),
       ],
@@ -39,7 +41,7 @@ export class AppModule {
           useClass: ThrottlerGuard,
         },
       ],
-      exports: [EnvironmentService],
+      exports: [EnvironmentService, AuthModule],
     };
   }
 }

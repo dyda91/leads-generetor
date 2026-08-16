@@ -61,7 +61,7 @@ O backend SHALL armazenar e verificar senhas exclusivamente com Argon2id, com pa
 - **THEN** o `passwordHash` não aparece em nenhuma resposta
 
 ### Requirement: Login autenticado
-O backend SHALL aceitar credenciais válidas em `POST /auth/login`, autenticar completamente o usuário antes de emitir qualquer cookie e retornar uma resposta uniforme para usuário inexistente, usuário inativo ou senha incorreta, impedindo enumeração. O login SHALL aplicar rate limit mais rígido que o global e validar `Origin` e/ou `Referer` estritamente. O backend SHALL adotar política de sessão única: o login bem-sucedido MUST revogar atomicamente as sessões anteriores do usuário e criar um novo token de sessão e um novo token CSRF, impedindo session fixation. A resposta de login bem-sucedida SHALL incluir o token CSRF no corpo e MUST NOT conter `passwordHash` ou o token de sessão.
+O backend SHALL aceitar credenciais válidas em `POST /auth/login`, autenticar completamente o usuário antes de emitir qualquer cookie e retornar uma resposta uniforme para usuário inexistente, usuário inativo ou senha incorreta, impedindo enumeração por resposta. O login SHALL aplicar rate limit mais rígido que o global e exigir uma `Origin` exata autorizada (`Origin` ausente, `null`, malformada, semelhante/maliciosa ou não autorizada SHALL ser rejeitada com 403); um `Referer`, quando presente, SHALL concordar com a `Origin` e MUST NOT substituí-la quando a `Origin` estiver ausente. Para toda tentativa de credencial sintaticamente válida, o backend SHALL executar exatamente uma verificação Argon2id, verificando usuários inexistentes e inativos contra um hash dummy em memória gerado com os parâmetros atuais (mesma duração, sem revelar a existência do usuário); um hash armazenado malformado SHALL ser tratado como credencial inválida sem expor a causa. O backend SHALL adotar política de sessão única: o login bem-sucedido MUST revogar atomicamente as sessões anteriores do usuário e criar um novo token de sessão e um novo token CSRF, impedindo session fixation. A resposta de login bem-sucedida SHALL incluir o token CSRF no corpo e MUST NOT conter `passwordHash` ou o token de sessão.
 
 #### Scenario: Login válido cria sessão única e emite cookie
 - **WHEN** credenciais válidas de um usuário ACTIVE são enviadas com origem permitida
@@ -86,6 +86,16 @@ O backend SHALL aceitar credenciais válidas em `POST /auth/login`, autenticar c
 #### Scenario: Validação de origem no login
 - **WHEN** uma requisição de login vem de uma origem ou referer não esperado
 - **THEN** o login é rejeitado
+
+#### Scenario: Login exige Origin exata
+- **WHEN** uma requisição de login não envia `Origin`, ou envia `null`, uma `Origin` malformada, semelhante/maliciosa ou fora da allowlist
+- **THEN** o login é rejeitado com 403 e nenhum cookie é emitido
+- **AND** um `Referer` presente não substitui uma `Origin` ausente
+
+#### Scenario: Tentativa de login executa exatamente uma verificação Argon2
+- **WHEN** uma tentativa de login sintaticamente válida é feita para e-mail inexistente, usuário inativo, senha incorreta ou senha correta
+- **THEN** exatamente uma verificação Argon2id é executada por tentativa
+- **AND** e-mails inexistentes e usuários inativos verificam contra um hash dummy em memória (mesma duração), sem revelar a existência do usuário
 
 #### Scenario: Resposta sem hash nem token de sessão
 - **WHEN** o login é bem-sucedido
@@ -124,7 +134,7 @@ A sessão SHALL ser um token de sessão aleatório gerado com CSPRNG, enviado so
 - **THEN** o token completo não aparece em logs, respostas JSON, query ou URLs
 
 ### Requirement: Sessão atual e logout
-O backend SHALL expor `GET /auth/me` retornando o usuário da sessão atual e renovando ou retornando o token CSRF, e `POST /auth/logout` revogando a sessão atual e limpando o cookie do ambiente atual. Ambas as respostas autenticadas SHALL usar `Cache-Control: no-store`. Logout MUST exigir sessão válida, `Origin`/`Referer` permitida e token CSRF válido. Sem sessão válida, ambos SHALL retornar 401.
+O backend SHALL expor `GET /auth/me` retornando o usuário da sessão atual e renovando ou retornando o token CSRF, e `POST /auth/logout` revogando a sessão atual e limpando o cookie do ambiente atual. Ambas as respostas autenticadas SHALL usar `Cache-Control: no-store`. Logout MUST exigir sessão válida, uma `Origin` exata autorizada (um `Referer` presente SHALL concordar e MUST NOT substituir uma `Origin` ausente) e token CSRF válido. A rotação do token CSRF em `/auth/me` SHALL ser determinística sob concorrência, usando compare-and-set no hash atual: exatamente uma requisição concorrente persiste o novo hash e retorna 200 com token; a perdedora SHALL retornar 409 controlado sem token. Sem sessão válida, ambos SHALL retornar 401.
 
 #### Scenario: me retorna o usuário e o token CSRF
 - **WHEN** uma sessão válida de um usuário ACTIVE é apresentada
@@ -143,8 +153,15 @@ O backend SHALL expor `GET /auth/me` retornando o usuário da sessão atual e re
 - **THEN** a resposta é 401
 
 #### Scenario: logout exige CSRF e origem
-- **WHEN** logout é chamado sem token CSRF válido ou com origem não permitida
-- **THEN** a operação é rejeitada
+- **WHEN** logout é chamado sem token CSRF válido ou sem uma `Origin` exata autorizada
+- **THEN** a operação é rejeitada (403)
+- **AND** um `Referer` presente não substitui uma `Origin` ausente
+
+#### Scenario: me com rotação determinística sob concorrência
+- **WHEN** duas requisições `GET /auth/me` concorrentes usam a mesma sessão
+- **THEN** exatamente uma retorna 200 com um token CSRF que funciona
+- **AND** a perdedora retorna 409 controlado, sem token, e o banco guarda apenas o hash vencedor
+- **AND** nenhum retry é feito que invalide o token já entregue pela vencedora
 
 ### Requirement: Autorização por guard
 O backend SHALL proteger rotas privadas com um guard que exige sessão válida (deny by default) e que o usuário tenha role ADMIN e status ACTIVE. Sem sessão válida, a resposta SHALL ser 401; com sessão válida mas sem permissão, SHALL ser 403. O backend MUST NOT confiar em role, `userId` ou `ownerId` enviados pelo cliente. `GET /health` SHALL permanecer público.
@@ -186,8 +203,9 @@ O backend SHALL habilitar `credentials: true` no CORS somente para origens exata
 - **AND** uma origem não autorizada não recebe permissão de leitura via CORS
 
 #### Scenario: Sem Origin, comportamento explícito
-- **WHEN** uma requisição sem header `Origin` é recebida
-- **THEN** o comportamento é explícito e documentado, e o CORS não é tratado como autenticação
+- **WHEN** uma requisição sem header `Origin` é recebida em um endpoint de leitura (`GET /health`, `GET /auth/me`)
+- **THEN** o comportamento é explícito e documentado, o CORS não é tratado como autenticação
+- **AND** as mutações de autenticação (`login`, `logout`, `change-password`) SHALL exigir uma `Origin` exata autorizada, com 403 quando ausente
 
 #### Scenario: Nunca emite os dois cookies simultaneamente
 - **WHEN** uma resposta é emitida
@@ -223,6 +241,7 @@ Operações mutáveis autenticadas por cookie SHALL ser protegidas contra CSRF c
 #### Scenario: Concorrência durante rotação
 - **WHEN** requisições concorrentes usam o token CSRF antigo durante uma rotação
 - **THEN** o token antigo não é aceito e as requisições são rejeitadas ou re-autenticadas de forma segura
+- **AND** a rotação de `/auth/me` usa compare-and-set: sob concorrência, exatamente uma requisição persiste o novo hash e retorna 200, e a perdedora retorna 409 sem token
 
 #### Scenario: Token não exposto em URL, query, logs ou erros
 - **WHEN** uma operação CSRF falha

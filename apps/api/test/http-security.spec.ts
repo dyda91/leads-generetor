@@ -181,12 +181,22 @@ describe('HTTP security bootstrap', () => {
       expect(response.headers['access-control-allow-origin']).toBeUndefined();
     });
 
-    it('does not enable credentials', async () => {
+    it('enables credentials for an authorized exact origin', async () => {
       const server = await startServer(testEnvironment);
       currentServer = server;
       const response = await httpRequest(server.baseUrl, 'GET', '/probe', {
         headers: { Origin: AUTHORIZED_ORIGIN },
       });
+      expect(response.headers['access-control-allow-credentials']).toBe('true');
+    });
+
+    it('never sends credentials to a disallowed origin', async () => {
+      const server = await startServer(testEnvironment);
+      currentServer = server;
+      const response = await httpRequest(server.baseUrl, 'GET', '/probe', {
+        headers: { Origin: 'https://evil.example.com' },
+      });
+      expect(response.headers['access-control-allow-origin']).toBeUndefined();
       expect(response.headers['access-control-allow-credentials']).toBeUndefined();
     });
 

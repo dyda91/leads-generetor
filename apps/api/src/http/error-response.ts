@@ -38,6 +38,18 @@ export const ERROR_CATALOG = {
     message: 'The request body is not valid JSON.',
   },
   BAD_REQUEST: { error: 'BAD_REQUEST', message: 'The request is invalid.' },
+  UNAUTHORIZED: {
+    error: 'UNAUTHORIZED',
+    message: 'Authentication is required.',
+  },
+  FORBIDDEN: {
+    error: 'FORBIDDEN',
+    message: 'The request is not allowed.',
+  },
+  CONFLICT: {
+    error: 'CONFLICT',
+    message: 'The request conflicts with the current state.',
+  },
   RATE_LIMIT_EXCEEDED: {
     error: 'RATE_LIMIT_EXCEEDED',
     message: 'Too many requests',

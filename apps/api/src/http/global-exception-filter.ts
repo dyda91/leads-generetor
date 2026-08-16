@@ -94,10 +94,16 @@ export class GlobalExceptionFilter implements ExceptionFilter {
     switch (statusCode) {
       case 400:
         return ERROR_CATALOG.VALIDATION;
+      case 401:
+        return ERROR_CATALOG.UNAUTHORIZED;
+      case 403:
+        return ERROR_CATALOG.FORBIDDEN;
       case 404:
         return ERROR_CATALOG.NOT_FOUND;
       case 405:
         return ERROR_CATALOG.METHOD_NOT_ALLOWED;
+      case 409:
+        return ERROR_CATALOG.CONFLICT;
       case 413:
         return ERROR_CATALOG.PAYLOAD_TOO_LARGE;
       case 415:

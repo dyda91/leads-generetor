@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client';
 import type { ReactNode } from 'react';
 
 import { createApiClient } from './api';
+import { AuthProvider } from './auth/AuthProvider';
 import { App } from './App';
 import './styles/globals.css';
 
@@ -24,7 +25,11 @@ function ConfigError() {
 
 try {
   createApiClient();
-  renderRoot(<App />);
+  renderRoot(
+    <AuthProvider>
+      <App />
+    </AuthProvider>,
+  );
 } catch {
   renderRoot(<ConfigError />);
 }

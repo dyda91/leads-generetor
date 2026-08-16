@@ -1,10 +1,33 @@
 import { LayoutGrid } from 'lucide-react';
 
-import { InlineAlert } from './components/feedback/inline-alert';
+import { useAuth } from './auth/AuthProvider';
+import { ErrorState } from './components/feedback/error-state';
 import { Button } from './components/ui/button';
 import { Card, CardContent, CardFooter } from './components/ui/card';
 
 export function App() {
+  const { state, retrySessionRestore } = useAuth();
+
+  if (state.status === 'restoring') {
+    return (
+      <main className="flex min-h-screen items-center justify-center bg-background p-6 text-foreground">
+        <p role="status">Restaurando sessão…</p>
+      </main>
+    );
+  }
+
+  if (state.status === 'recoverable-error') {
+    return (
+      <main className="flex min-h-screen items-center justify-center bg-background p-6 text-foreground">
+        <ErrorState
+          title="Não foi possível conectar"
+          description="Tente novamente em instantes."
+          onRetry={retrySessionRestore}
+        />
+      </main>
+    );
+  }
+
   return (
     <main className="flex min-h-screen items-center justify-center bg-background p-6 text-foreground">
       <div className="w-full max-w-md">
@@ -15,10 +38,10 @@ export function App() {
         </header>
         <Card>
           <CardContent className="pt-6">
-            <InlineAlert variant="info" title="Em preparação">
+            <p className="text-sm text-foreground">
               O sistema está sendo preparado. Pesquisa e gestão de leads estarão disponíveis em
               próximas etapas.
-            </InlineAlert>
+            </p>
           </CardContent>
           <CardFooter>
             <Button type="button" disabled>

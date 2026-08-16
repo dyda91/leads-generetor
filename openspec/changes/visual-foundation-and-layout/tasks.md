@@ -36,14 +36,14 @@ Critério de conclusão: testes provam `credentials: include`, CSRF apenas em mu
 
 ## 4. Estado de autenticação
 
-Comandos: `pnpm --filter @leads/web test`
+Comandos: `pnpm --filter @leads/web test` · `pnpm --filter @leads/web lint` · `pnpm --filter @leads/web typecheck`
 
-- [ ] 4.1 Criar store em memória (context + reducer) para `user` (mínimo), `csrfToken` e status; proibido `localStorage`/`sessionStorage`/`document.cookie`
-- [ ] 4.2 Restauração da sessão via `GET /auth/me` com single-flight (uma chamada por instância) e loading estável; 401 → `/login`; 500 → erro recuperável sem deslogar, com retry
-- [ ] 4.3 Tratar 409 de rotação concorrente com retry limitado (máx. 1) e sem loop; manter somente o token da resposta válida e descartar o anterior
-- [ ] 4.4 Ciclo de vida do CSRF: setado por login e `/me`; usado em mutações; atualizado na troca de senha; limpo no logout/401
+- [x] 4.1 Criar `AuthProvider` (Context API + reducer) com estado público como união discriminada (`restoring`/`authenticated`/`unauthenticated`/`recoverable-error`), usuário mínimo em memória e CSRF somente em ref (nunca exposto); proibido `localStorage`/`sessionStorage`/`indexedDB`/`document.cookie`
+- [x] 4.2 Restauração via `GET /auth/me` com single-flight (promise compartilhada; StrictMode não gera loops) e loading estável; 401 → `unauthenticated`; 500/rede/timeout → `recoverable-error` sem deslogar, com `retrySessionRestore()` controlado
+- [x] 4.3 Tratar 409 de rotação concorrente com retry de exatamente 1 (somente a resposta válida final é mantida; CSRF da resposta conflitante descartado); segundo 409 → `recoverable-error`; sem loop/retry infinito
+- [x] 4.4 Ciclo de vida do CSRF em memória: setado por login e `/me`; passado internamente ao cliente em logout e changePassword; substituído atomicamente na troca de senha; limpo no logout/401; concorrência via operation ID (login/logout posteriores prevalecem sobre restores antigos; unmount não atualiza estado)
 
-Critério de conclusão: testes de single-flight, retry ≤1, 409, sem persistência de token e sem `/me` desnecessário durante navegação.
+Critério de conclusão: testes de single-flight, retry ≤1, 409, estados da união, concorrência/operation ID, unmount, sem persistência de token/senha e sem `/me` desnecessário.
 
 ## 5. Login
 

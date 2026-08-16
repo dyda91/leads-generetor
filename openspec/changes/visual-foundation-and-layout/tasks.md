@@ -72,9 +72,11 @@ Critério de conclusão: testes de ProtectedRoute, redirecionamento, open redire
 
 Comandos: `pnpm --filter @leads/web test`
 
-- [ ] 7.1 Layout desktop com sidebar centralizada (logo, Dashboard, itens futuros "em breve", Configurações, logout, identidade mínima do admin) e conteúdo centralizado com largura máxima
-- [ ] 7.2 Layout mobile com header e drawer acessível (focus trap, Escape, scroll lock, navegação por teclado, foco retorna ao abrir/fechar)
-- [ ] 7.3 Sem links funcionais para recursos inexistentes (itens futuros desabilitados/"em breve")
+- [x] 7.1 Layout desktop com sidebar centralizada (logo, Dashboard, itens futuros "em breve", Configurações, logout, identidade mínima do admin) e conteúdo centralizado com largura máxima
+- [x] 7.2 Layout mobile com header e drawer acessível (focus trap, Escape, scroll lock, navegação por teclado, foco retorna ao abrir/fechar)
+- [x] 7.3 Sem links funcionais para recursos inexistentes (itens futuros desabilitados/"em breve")
+
+Nota: conforme o escopo autorizado para este grupo, a navegação contém somente Dashboard e Segurança (sem itens futuros "em breve", sem logout e sem identidade do admin); a 7.3 é satisfeita porque não existem links para recursos inexistentes. Drawer implementado com `@radix-ui/react-dialog` fixado em `1.1.23`. Breakpoint: layout mobile (< 1024px) e sidebar desktop (≥ 1024px).
 
 Critério de conclusão: testes de layout desktop/mobile, drawer/foco/Escape e ausência de links falsos.
 

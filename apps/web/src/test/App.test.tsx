@@ -50,16 +50,23 @@ describe('App (routing + AuthProvider integration)', () => {
     vi.restoreAllMocks();
   });
 
-  it('renders the accessible product title after session restore at /', async () => {
+  it('renders the authenticated shell and dashboard heading after session restore at /', async () => {
     renderApp();
-    expect(await screen.findByRole('heading', { level: 1 })).toHaveTextContent('Leads');
-    expect(screen.getByText('Aplicação em configuração')).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { level: 1 })).toHaveTextContent('Dashboard');
+    expect(screen.getByRole('main')).toHaveAttribute('id', 'main-content');
+    expect(screen.getAllByText('Leads').length).toBeGreaterThan(0);
   });
 
-  it('uses the real design-system components (disabled future CTA, no fake links)', async () => {
+  it('uses the real design-system components and exposes no fake links', async () => {
     renderApp();
     expect(await screen.findByRole('button', { name: 'Em breve' })).toBeDisabled();
-    expect(screen.queryByRole('link')).toBeNull();
+    const links = screen.getAllByRole('link').map((link) => link.textContent ?? '');
+    expect(links).toEqual(
+      expect.arrayContaining(['Dashboard', 'Segurança', 'Pular para o conteúdo']),
+    );
+    expect(links).not.toEqual(
+      expect.arrayContaining([expect.stringMatching(/pesquis|lead|lista|exporta/i)]),
+    );
   });
 
   it('shows a stable restoring state before the session resolves', async () => {
@@ -93,9 +100,7 @@ describe('App (routing + AuthProvider integration)', () => {
 
   it('shows the placeholder, not the login form, when authenticated at /', async () => {
     renderApp();
-    expect(
-      await screen.findByRole('heading', { name: 'Leads — Prospecção Empresarial' }),
-    ).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: 'Dashboard' })).toBeInTheDocument();
     expect(screen.queryByRole('heading', { name: 'Acesse sua conta' })).toBeNull();
   });
 

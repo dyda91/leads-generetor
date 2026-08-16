@@ -131,9 +131,7 @@ describe('navigation (Grupo 6 — protected routes and safe post-login destinati
 
   it('protects / and renders the dashboard placeholder when authenticated', async () => {
     renderApp({ initialEntries: ['/'] });
-    expect(
-      await screen.findByRole('heading', { name: 'Leads — Prospecção Empresarial' }),
-    ).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: 'Dashboard' })).toBeInTheDocument();
   });
 
   it('protects /settings/security and renders its placeholder when authenticated', async () => {
@@ -171,13 +169,11 @@ describe('navigation (Grupo 6 — protected routes and safe post-login destinati
       initialEntries: ['/'],
     });
     expect(screen.getByRole('status')).toHaveTextContent('Restaurando sessão');
-    expect(screen.queryByRole('heading', { name: 'Leads — Prospecção Empresarial' })).toBeNull();
+    expect(screen.queryByRole('heading', { name: 'Dashboard' })).toBeNull();
     await act(async () => {
       gate.resolve(SESSION);
     });
-    expect(
-      await screen.findByRole('heading', { name: 'Leads — Prospecção Empresarial' }),
-    ).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: 'Dashboard' })).toBeInTheDocument();
   });
 
   it('does not redirect while the session is restoring', async () => {
@@ -222,9 +218,7 @@ describe('navigation (Grupo 6 — protected routes and safe post-login destinati
     });
     expect(await screen.findByRole('button', { name: 'Tentar novamente' })).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: 'Tentar novamente' }));
-    expect(
-      await screen.findByRole('heading', { name: 'Leads — Prospecção Empresarial' }),
-    ).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: 'Dashboard' })).toBeInTheDocument();
     expect(client.getCurrentSession).toHaveBeenCalledTimes(2);
   });
 
@@ -234,9 +228,7 @@ describe('navigation (Grupo 6 — protected routes and safe post-login destinati
       initialEntries: ['/login'],
       children: <LocationProbe snapshotRef={snapshot} />,
     });
-    expect(
-      await screen.findByRole('heading', { name: 'Leads — Prospecção Empresarial' }),
-    ).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: 'Dashboard' })).toBeInTheDocument();
     await waitFor(() => expect(snapshot.current?.pathname).toBe('/'));
     expect(snapshot.current?.navigationType).toBe('REPLACE');
   });
@@ -250,9 +242,7 @@ describe('navigation (Grupo 6 — protected routes and safe post-login destinati
     });
     expect(await screen.findByRole('heading', { name: 'Acesse sua conta' })).toBeInTheDocument();
     performLogin();
-    expect(
-      await screen.findByRole('heading', { name: 'Leads — Prospecção Empresarial' }),
-    ).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: 'Dashboard' })).toBeInTheDocument();
     await waitFor(() => expect(snapshot.current?.pathname).toBe('/'));
     expect(snapshot.current?.navigationType).toBe('REPLACE');
     expect(client.login).toHaveBeenCalledTimes(1);
@@ -293,9 +283,7 @@ describe('navigation (Grupo 6 — protected routes and safe post-login destinati
       });
       expect(await screen.findByRole('heading', { name: 'Acesse sua conta' })).toBeInTheDocument();
       performLogin();
-      expect(
-        await screen.findByRole('heading', { name: 'Leads — Prospecção Empresarial' }),
-      ).toBeInTheDocument();
+      expect(await screen.findByRole('heading', { name: 'Dashboard' })).toBeInTheDocument();
       await waitFor(() => expect(snapshot.current?.pathname).toBe('/'));
     },
   );
@@ -312,9 +300,7 @@ describe('navigation (Grupo 6 — protected routes and safe post-login destinati
         </>
       ),
     });
-    expect(
-      await screen.findByRole('heading', { name: 'Leads — Prospecção Empresarial' }),
-    ).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: 'Dashboard' })).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: 'Sair' }));
     expect(await screen.findByRole('heading', { name: 'Acesse sua conta' })).toBeInTheDocument();
     await waitFor(() => expect(snapshot.current?.pathname).toBe('/login'));

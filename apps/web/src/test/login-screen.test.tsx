@@ -26,13 +26,13 @@ function createFakeClient(): FakeClient {
   };
 }
 
-function renderLogin(client: FakeClient, onAuthenticated?: () => void): HTMLElement {
+function renderLogin(client: FakeClient): HTMLElement {
   client.getCurrentSession.mockRejectedValue(
     ApiError.http(401, { message: messageForStatus(401) }),
   );
   const view = render(
     <AuthProvider client={client as unknown as ApiClient}>
-      <LoginScreen {...(onAuthenticated !== undefined ? { onAuthenticated } : {})} />
+      <LoginScreen />
     </AuthProvider>,
   );
   return view.container;
@@ -142,18 +142,17 @@ describe('LoginScreen — submission', () => {
     });
   });
 
-  it('clears the password after a successful login and calls onAuthenticated', async () => {
-    const onAuthenticated = vi.fn();
+  it('clears the password after a successful login', async () => {
     const client = createFakeClient();
     client.login.mockResolvedValue({
       user: { id: 'u1', email: VALID_EMAIL, role: 'ADMIN', status: 'ACTIVE' },
       csrfToken: CSRF,
     });
-    renderLogin(client, onAuthenticated);
+    renderLogin(client);
 
     fillForm(VALID_EMAIL, VALID_PASSWORD);
     submitForm();
-    await waitFor(() => expect(onAuthenticated).toHaveBeenCalledTimes(1));
+    await waitFor(() => expect(client.login).toHaveBeenCalledTimes(1));
     expect(screen.getByLabelText('Senha')).toHaveValue('');
   });
 

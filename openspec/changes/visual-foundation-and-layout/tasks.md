@@ -62,9 +62,9 @@ Critério de conclusão: testes de login válido/inválido, 401/403/429, sem dup
 
 Comandos: `pnpm --filter @leads/web test`
 
-- [ ] 6.1 Definir rotas `/login`, `/`, `/settings/security` e 404 do frontend com `ProtectedRoute` que aguarda a resolução da sessão
-- [ ] 6.2 Sem sessão → `/login` com destino interno guardado; login com sessão válida → dashboard; destino externo rejeitado
-- [ ] 6.3 401 em rota privada limpa estado e redireciona; 403 não é tratado como logout; 500 não apaga sessão sem confirmação
+- [x] 6.1 Definir rotas `/login`, `/`, `/settings/security` e 404 do frontend com `ProtectedRoute` que aguarda a resolução da sessão
+- [x] 6.2 Sem sessão → `/login` com destino interno guardado; login com sessão válida → dashboard; destino externo rejeitado
+- [x] 6.3 401 em rota privada limpa estado e redireciona; 403 não é tratado como logout; 500 não apaga sessão sem confirmação
 
 Critério de conclusão: testes de ProtectedRoute, redirecionamento, open redirect e tratamento 401/403/500.
 

@@ -1,6 +1,7 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import type { ReactNode } from 'react';
+import { BrowserRouter } from 'react-router';
 
 import { createApiClient } from './api';
 import { AuthProvider } from './auth/AuthProvider';
@@ -27,7 +28,9 @@ try {
   createApiClient();
   renderRoot(
     <AuthProvider>
-      <App />
+      <BrowserRouter>
+        <App />
+      </BrowserRouter>
     </AuthProvider>,
   );
 } catch {

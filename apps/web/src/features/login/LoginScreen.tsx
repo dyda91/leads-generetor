@@ -14,14 +14,6 @@ const EMAIL_MAX_LENGTH = 254;
 const PASSWORD_MAX_LENGTH = 128;
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-export interface LoginScreenProps {
-  /**
-   * Called after a successful login. Group 6 (protected routing) wires this to
-   * internal navigation; until then the AuthProvider state drives the UI.
-   */
-  onAuthenticated?: () => void;
-}
-
 function validateEmail(value: string): string | null {
   if (value.length === 0) {
     return 'Informe o e-mail.';
@@ -61,7 +53,7 @@ function mapLoginError(error: unknown): string {
   return 'Ocorreu um erro inesperado. Tente novamente.';
 }
 
-export function LoginScreen({ onAuthenticated }: LoginScreenProps) {
+export function LoginScreen() {
   const { login } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -101,7 +93,6 @@ export function LoginScreen({ onAuthenticated }: LoginScreenProps) {
     try {
       await login({ email: normalizedEmail, password });
       setPassword('');
-      onAuthenticated?.();
     } catch (error) {
       setGeneralError(mapLoginError(error));
       errorRef.current?.focus();

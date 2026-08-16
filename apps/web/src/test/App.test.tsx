@@ -1,4 +1,5 @@
 import { render, screen, waitFor } from '@testing-library/react';
+import { MemoryRouter } from 'react-router';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { AuthProvider } from '../auth/AuthProvider';
@@ -30,23 +31,26 @@ function createFakeClient(): {
 
 function renderApp(
   getCurrentSession?: () => Promise<unknown>,
+  initialEntries: string[] = ['/'],
 ): ReturnType<typeof createFakeClient> {
   const client = createFakeClient();
   client.getCurrentSession.mockImplementation(getCurrentSession ?? (async () => SESSION));
   render(
     <AuthProvider client={client as unknown as ApiClient}>
-      <App />
+      <MemoryRouter initialEntries={initialEntries}>
+        <App />
+      </MemoryRouter>
     </AuthProvider>,
   );
   return client;
 }
 
-describe('App (integration with AuthProvider)', () => {
+describe('App (routing + AuthProvider integration)', () => {
   afterEach(() => {
     vi.restoreAllMocks();
   });
 
-  it('renders the accessible product title after session restore', async () => {
+  it('renders the accessible product title after session restore at /', async () => {
     renderApp();
     expect(await screen.findByRole('heading', { level: 1 })).toHaveTextContent('Leads');
     expect(screen.getByText('Aplicação em configuração')).toBeInTheDocument();
@@ -71,19 +75,36 @@ describe('App (integration with AuthProvider)', () => {
     await waitFor(() => expect(screen.queryByRole('heading', { level: 1 })).toBeNull());
   });
 
-  it('shows the login screen when unauthenticated (no placeholder flash)', async () => {
-    renderApp(() => Promise.reject(ApiError.http(401, { message: 'Autenticação necessária.' })));
+  it('shows the login screen when unauthenticated at /login', async () => {
+    renderApp(
+      () => Promise.reject(ApiError.http(401, { message: 'Autenticação necessária.' })),
+      ['/login'],
+    );
     expect(await screen.findByRole('heading', { name: 'Acesse sua conta' })).toBeInTheDocument();
     expect(screen.getByLabelText('Senha')).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Em breve' })).toBeNull();
   });
 
-  it('shows the placeholder, not the login form, when authenticated', async () => {
+  it('redirects an unauthenticated user from a protected route to /login', async () => {
+    renderApp(() => Promise.reject(ApiError.http(401, { message: 'Autenticação necessária.' })));
+    expect(await screen.findByRole('heading', { name: 'Acesse sua conta' })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Em breve' })).toBeNull();
+  });
+
+  it('shows the placeholder, not the login form, when authenticated at /', async () => {
     renderApp();
     expect(
       await screen.findByRole('heading', { name: 'Leads — Prospecção Empresarial' }),
     ).toBeInTheDocument();
     expect(screen.queryByRole('heading', { name: 'Acesse sua conta' })).toBeNull();
+  });
+
+  it('renders the accessible 404 for an unknown route', async () => {
+    renderApp(undefined, ['/unknown-path']);
+    expect(
+      await screen.findByRole('heading', { name: 'Página não encontrada' }),
+    ).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Ir para o início' })).toHaveAttribute('href', '/');
   });
 
   it('does not call fetch while rendering', async () => {

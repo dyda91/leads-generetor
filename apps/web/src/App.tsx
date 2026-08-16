@@ -1,9 +1,10 @@
 import { Route, Routes } from 'react-router';
 
 import { AppShell } from './components/layout/AppShell';
+import { DashboardPage } from './features/dashboard/DashboardPage';
+import { SecurityPage } from './features/security/SecurityPage';
 import { LoginRoute } from './routes/LoginRoute';
 import { NotFoundPage } from './routes/NotFoundPage';
-import { DashboardPlaceholder, SecurityPlaceholder } from './routes/placeholders';
 import { ProtectedRoute } from './routes/ProtectedRoute';
 
 /**
@@ -18,8 +19,8 @@ export function App() {
       <Route path="/login" element={<LoginRoute />} />
       <Route element={<ProtectedRoute />}>
         <Route element={<AppShell />}>
-          <Route path="/" element={<DashboardPlaceholder />} />
-          <Route path="/settings/security" element={<SecurityPlaceholder />} />
+          <Route path="/" element={<DashboardPage />} />
+          <Route path="/settings/security" element={<SecurityPage />} />
         </Route>
       </Route>
       <Route path="*" element={<NotFoundPage />} />

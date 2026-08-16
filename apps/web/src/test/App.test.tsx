@@ -59,7 +59,7 @@ describe('App (routing + AuthProvider integration)', () => {
 
   it('uses the real design-system components and exposes no fake links', async () => {
     renderApp();
-    expect(await screen.findByRole('button', { name: 'Em breve' })).toBeDisabled();
+    expect(await screen.findByRole('button', { name: 'Pesquisar empresas' })).toBeDisabled();
     const links = screen.getAllByRole('link').map((link) => link.textContent ?? '');
     expect(links).toEqual(
       expect.arrayContaining(['Dashboard', 'Segurança', 'Pular para o conteúdo']),
@@ -89,13 +89,13 @@ describe('App (routing + AuthProvider integration)', () => {
     );
     expect(await screen.findByRole('heading', { name: 'Acesse sua conta' })).toBeInTheDocument();
     expect(screen.getByLabelText('Senha')).toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: 'Em breve' })).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Pesquisar empresas' })).toBeNull();
   });
 
   it('redirects an unauthenticated user from a protected route to /login', async () => {
     renderApp(() => Promise.reject(ApiError.http(401, { message: 'Autenticação necessária.' })));
     expect(await screen.findByRole('heading', { name: 'Acesse sua conta' })).toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: 'Em breve' })).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Pesquisar empresas' })).toBeNull();
   });
 
   it('shows the placeholder, not the login form, when authenticated at /', async () => {

@@ -136,9 +136,7 @@ describe('navigation (Grupo 6 — protected routes and safe post-login destinati
 
   it('protects /settings/security and renders its placeholder when authenticated', async () => {
     renderApp({ initialEntries: ['/settings/security'] });
-    expect(
-      await screen.findByRole('heading', { name: 'Configurações de segurança' }),
-    ).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: 'Segurança da conta' })).toBeInTheDocument();
   });
 
   it('renders the accessible 404 for an unknown route', async () => {
@@ -157,7 +155,7 @@ describe('navigation (Grupo 6 — protected routes and safe post-login destinati
       children: <LocationProbe snapshotRef={snapshot} />,
     });
     expect(await screen.findByRole('heading', { name: 'Acesse sua conta' })).toBeInTheDocument();
-    expect(screen.queryByRole('heading', { name: 'Configurações de segurança' })).toBeNull();
+    expect(screen.queryByRole('heading', { name: 'Segurança da conta' })).toBeNull();
     await waitFor(() => expect(snapshot.current?.pathname).toBe('/login'));
     expect(snapshot.current?.navigationType).toBe('REPLACE');
   });
@@ -203,7 +201,7 @@ describe('navigation (Grupo 6 — protected routes and safe post-login destinati
     expect(await screen.findByRole('alert')).toHaveTextContent('Não foi possível conectar');
     expect(screen.getByRole('button', { name: 'Tentar novamente' })).toBeInTheDocument();
     await waitFor(() => expect(snapshot.current?.pathname).toBe('/settings/security'));
-    expect(screen.queryByRole('heading', { name: 'Configurações de segurança' })).toBeNull();
+    expect(screen.queryByRole('heading', { name: 'Segurança da conta' })).toBeNull();
   });
 
   it('retries session restore from the recoverable error', async () => {
@@ -257,9 +255,7 @@ describe('navigation (Grupo 6 — protected routes and safe post-login destinati
     });
     expect(await screen.findByRole('heading', { name: 'Acesse sua conta' })).toBeInTheDocument();
     performLogin();
-    expect(
-      await screen.findByRole('heading', { name: 'Configurações de segurança' }),
-    ).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: 'Segurança da conta' })).toBeInTheDocument();
     await waitFor(() => expect(snapshot.current?.pathname).toBe('/settings/security'));
   });
 
@@ -317,9 +313,7 @@ describe('navigation (Grupo 6 — protected routes and safe post-login destinati
     expect(await screen.findByRole('heading', { name: 'Acesse sua conta' })).toBeInTheDocument();
     await waitFor(() => expect(snapshot.current?.navigationType).toBe('REPLACE'));
     performLogin();
-    expect(
-      await screen.findByRole('heading', { name: 'Configurações de segurança' }),
-    ).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: 'Segurança da conta' })).toBeInTheDocument();
     await waitFor(() => expect(snapshot.current?.navigationType).toBe('REPLACE'));
     await waitFor(() => expect(snapshot.current?.pathname).toBe('/settings/security'));
   });
@@ -349,7 +343,7 @@ describe('navigation (Grupo 6 — protected routes and safe post-login destinati
     });
     expect(await screen.findByRole('heading', { name: 'Acesse sua conta' })).toBeInTheDocument();
     performLogin();
-    await screen.findByRole('heading', { name: 'Configurações de segurança' });
+    await screen.findByRole('heading', { name: 'Segurança da conta' });
     expect(fetchSpy).not.toHaveBeenCalled();
     expect(getItem).not.toHaveBeenCalled();
     expect(setItem).not.toHaveBeenCalled();

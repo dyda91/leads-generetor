@@ -84,8 +84,8 @@ Critério de conclusão: testes de layout desktop/mobile, drawer/foco/Escape e a
 
 Comandos: `pnpm --filter @leads/web test`
 
-- [ ] 8.1 Dashboard shell com saudação, status do sistema, "nenhuma pesquisa realizada", CTA futuro desabilitado e bloco "Próximos passos"
-- [ ] 8.2 Estados vazios honestos (cards vazios, sem números inventados); health da API somente se útil, sem polling agressivo
+- [x] 8.1 Dashboard shell com saudação, status do sistema, "nenhuma pesquisa realizada", CTA futuro desabilitado e bloco "Próximos passos"
+- [x] 8.2 Estados vazios honestos (cards vazios, sem números inventados); health da API somente se útil, sem polling agressivo
 
 Critério de conclusão: dashboard renderizado sem dados fictícios; estados de loading/erro/vazio cobertos por testes.
 
@@ -93,8 +93,8 @@ Critério de conclusão: dashboard renderizado sem dados fictícios; estados de 
 
 Comandos: `pnpm --filter @leads/web test`
 
-- [ ] 9.1 Página/modal protegido de troca de senha (senha atual, nova senha, confirmação local, requisitos claros, CSRF em memória, sem normalização, sem armazenar/logar valores, sem submissão duplicada, inputs limpos)
-- [ ] 9.2 Tratamento de erros da troca (senha atual incorreta → mensagem uniforme; 401 → redireciona; 403 → CSRF/origem); sucesso atualiza CSRF em memória
+- [x] 9.1 Página/modal protegido de troca de senha (senha atual, nova senha, confirmação local, requisitos claros, CSRF em memória, sem normalização, sem armazenar/logar valores, sem submissão duplicada, inputs limpos)
+- [x] 9.2 Tratamento de erros da troca (senha atual incorreta → mensagem uniforme; 401 → redireciona; 403 → CSRF/origem); sucesso atualiza CSRF em memória
 - [ ] 9.3 Logout com CSRF, sem auto-retry; sucesso limpa memória e redireciona; falha de rede oferece limpar estado local sem afirmar revogação do servidor; 401 limpa estado
 
 Critério de conclusão: testes de troca de senha e logout (sucesso, falha de rede, 401), CSRF em memória e ausência de persistência.

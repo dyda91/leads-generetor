@@ -72,9 +72,7 @@ describe('AppShell (Grupo 7 — authenticated responsive layout)', () => {
 
   it('renders the shell on /settings/security', async () => {
     renderAt('/settings/security');
-    expect(
-      await screen.findByRole('heading', { name: 'Configurações de segurança' }),
-    ).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: 'Segurança da conta' })).toBeInTheDocument();
     expect(screen.getByRole('main')).toBeInTheDocument();
     expect(screen.getByRole('complementary')).toBeInTheDocument();
   });
@@ -105,7 +103,7 @@ describe('AppShell (Grupo 7 — authenticated responsive layout)', () => {
 
   it('marks Segurança as the active route on /settings/security', async () => {
     renderAt('/settings/security');
-    await screen.findByRole('heading', { name: 'Configurações de segurança' });
+    await screen.findByRole('heading', { name: 'Segurança da conta' });
     expect(screen.getByRole('link', { name: 'Segurança' })).toHaveAttribute('aria-current', 'page');
     expect(screen.getByRole('link', { name: 'Dashboard' })).not.toHaveAttribute('aria-current');
   });
@@ -117,9 +115,7 @@ describe('AppShell (Grupo 7 — authenticated responsive layout)', () => {
     expect(seguranca.tagName).toBe('A');
     expect(seguranca).toHaveAttribute('href', '/settings/security');
     fireEvent.click(seguranca);
-    expect(
-      await screen.findByRole('heading', { name: 'Configurações de segurança' }),
-    ).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: 'Segurança da conta' })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Dashboard' })).toHaveAttribute('href', '/');
   });
 
@@ -182,14 +178,12 @@ describe('AppShell (Grupo 7 — authenticated responsive layout)', () => {
     const dialog = await openDrawer();
     fireEvent.click(within(dialog).getByRole('link', { name: 'Segurança' }));
     await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
-    expect(
-      await screen.findByRole('heading', { name: 'Configurações de segurança' }),
-    ).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: 'Segurança da conta' })).toBeInTheDocument();
   });
 
   it('marks the active item in the drawer', async () => {
     renderAt('/settings/security');
-    await screen.findByRole('heading', { name: 'Configurações de segurança' });
+    await screen.findByRole('heading', { name: 'Segurança da conta' });
     const dialog = await openDrawer();
     expect(within(dialog).getByRole('link', { name: 'Segurança' })).toHaveAttribute(
       'aria-current',
@@ -205,8 +199,8 @@ describe('AppShell (Grupo 7 — authenticated responsive layout)', () => {
     await screen.findByRole('heading', { name: 'Dashboard' });
     const names = screen.getAllByRole('link').map((link) => link.textContent ?? '');
     expect(names).toEqual(['Pular para o conteúdo', 'Dashboard', 'Segurança']);
-    expect(screen.queryByText(/pesquisar/i)).toBeNull();
-    expect(screen.queryByRole('button', { name: 'Em breve' })).toBeDisabled();
+    expect(screen.queryByRole('link', { name: /pesquisar|em breve/i })).toBeNull();
+    expect(screen.getByRole('button', { name: 'Pesquisar empresas' })).toBeDisabled();
   });
 
   it('does not fetch, touch storage or set cookies while rendering the shell', async () => {
@@ -214,7 +208,7 @@ describe('AppShell (Grupo 7 — authenticated responsive layout)', () => {
     const getItem = vi.spyOn(Storage.prototype, 'getItem');
     const setItem = vi.spyOn(Storage.prototype, 'setItem');
     renderAt('/settings/security');
-    await screen.findByRole('heading', { name: 'Configurações de segurança' });
+    await screen.findByRole('heading', { name: 'Segurança da conta' });
     expect(fetchSpy).not.toHaveBeenCalled();
     expect(getItem).not.toHaveBeenCalled();
     expect(setItem).not.toHaveBeenCalled();

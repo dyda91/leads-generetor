@@ -45,26 +45,30 @@ Ameaças consideradas nesta fase:
 
 ## Controles por ameaça e mapa de mudanças
 
-| Controle                                                                                                                    | Status       | Mudança prevista                                      |
-| --------------------------------------------------------------------------------------------------------------------------- | ------------ | ----------------------------------------------------- |
-| Segredos nunca versionados; `.env.example` com placeholders                                                                 | Implementado | `project-foundation` (secretlint, pre-commit)         |
-| PostgreSQL não exposto publicamente; loopback                                                                               | Implementado | `project-foundation` (compose dev)                    |
-| Google Places — chave ausente do frontend (nível de repositório)                                                            | Implementado | `project-foundation`                                  |
-| Google Places — chamadas/respostas runtime backend-only                                                                     | Planejado    | `places-search`                                       |
-| Validação fail-fast de configuração (runtime)                                                                               | Planejado    | `security-foundation`                                 |
-| Health check público mínimo (runtime)                                                                                       | Planejado    | `security-foundation`                                 |
-| Logs estruturados e sanitizados (runtime)                                                                                   | Planejado    | `audit-and-observability`                             |
-| Autenticação e autorização (Argon2id, refresh rotativo, cookies, CSRF, bloqueio de brute force, revogação, anti-enumeração) | Planejado    | `authentication-and-authorization`                    |
-| Rate limiting global e reforçado (login, pesquisa, exportação)                                                              | Planejado    | `security-foundation`                                 |
-| Validação de entrada e rejeição de propriedades desconhecidas                                                               | Planejado    | `security-foundation`                                 |
-| Erros centralizados sem detalhes internos                                                                                   | Planejado    | `security-foundation`                                 |
-| Proteção contra IDOR (propriedade/permissão em todo recurso)                                                                | Planejado    | `lead-management`, `lead-lists-and-pipeline`          |
-| Proteção contra XSS/CSP                                                                                                     | Planejado    | `visual-foundation-and-layout`, `security-foundation` |
-| Proteção contra SSRF e chamadas externas seguras (timeout, redirecionamentos, validação de URL)                             | Planejado    | `places-search`                                       |
-| SQL injection (consultas parametrizadas)                                                                                    | Planejado    | `security-foundation`/API                             |
-| Abuso de API e paginação                                                                                                    | Planejado    | `security-foundation`                                 |
-| Auditoria de ações sensíveis                                                                                                | Planejado    | `audit-and-observability`                             |
-| Hardening de produção (containers não-root, imagens fixadas, .env validado)                                                 | Planejado    | `production-hardening-and-deployment`                 |
+| Controle                                                                                                                    | Status       | Mudança prevista                              |
+| --------------------------------------------------------------------------------------------------------------------------- | ------------ | --------------------------------------------- |
+| Segredos nunca versionados; `.env.example` com placeholders                                                                 | Implementado | `project-foundation` (secretlint, pre-commit) |
+| PostgreSQL não exposto publicamente; loopback                                                                               | Implementado | `project-foundation` (compose dev)            |
+| Google Places — chave ausente do frontend (nível de repositório)                                                            | Implementado | `project-foundation`                          |
+| Google Places — chamadas/respostas runtime backend-only                                                                     | Planejado    | `places-search`                               |
+| Validação fail-fast de configuração (runtime)                                                                               | Implementado | `security-foundation`                         |
+| Health check público mínimo (runtime)                                                                                       | Implementado | `security-foundation`                         |
+| Logs estruturados e sanitizados (runtime)                                                                                   | Planejado    | `audit-and-observability`                     |
+| Autenticação e autorização (Argon2id, refresh rotativo, cookies, CSRF, bloqueio de brute force, revogação, anti-enumeração) | Planejado    | `authentication-and-authorization`            |
+| Rate limiting global (runtime)                                                                                              | Implementado | `security-foundation`                         |
+| Rate limiting reforçado (login, pesquisa, exportação)                                                                       | Planejado    | `authentication-and-authorization` e domínio  |
+| Validação de entrada e rejeição de propriedades desconhecidas                                                               | Implementado | `security-foundation`                         |
+| Erros centralizados sem detalhes internos                                                                                   | Implementado | `security-foundation`                         |
+| Proteção contra IDOR (propriedade/permissão em todo recurso)                                                                | Planejado    | `lead-management`, `lead-lists-and-pipeline`  |
+| CSP restritiva da API (API sem HTML)                                                                                        | Implementado | `security-foundation`                         |
+| Proteção contra XSS (frontend)                                                                                              | Planejado    | `visual-foundation-and-layout`                |
+| Proteção contra SSRF e chamadas externas seguras (timeout, redirecionamentos, validação de URL)                             | Planejado    | `places-search`                               |
+| SQL injection (consultas parametrizadas)                                                                                    | Planejado    | API/domínio (quando o banco existir)          |
+| Abuso de API — paginação e limites por recurso                                                                              | Planejado    | API/domínio                                   |
+| Auditoria de ações sensíveis                                                                                                | Planejado    | `audit-and-observability`                     |
+| Hardening de produção (containers não-root, imagens fixadas, .env validado)                                                 | Planejado    | `production-hardening-and-deployment`         |
+
+A superfície pública da API, o contrato de erros e os controles ativos estão detalhados em [`docs/architecture/api.md`](../architecture/api.md).
 
 ## Health check
 
@@ -81,6 +85,16 @@ Ameaças consideradas nesta fase:
 - **Limites:** configuração tipada (`RATE_LIMIT_TTL_MS`, `RATE_LIMIT_MAX`) validada no boot; produção rejeita limites que tornem a proteção ineficaz.
 - **Relação com outros controles:** CORS **não** substitui rate limit; rate limit **não** substitui autenticação/autorização.
 - Headers de rate limit (`Retry-After`, `X-RateLimit-*`) não são emitidos nesta mudança; o 429 segue o contrato de erro padrão (`RATE_LIMIT_EXCEEDED`).
+
+## Contrato de erros
+
+Todas as respostas de erro seguem um envelope único: `{ requestId, statusCode, error, message, details? }`. Valores recebidos, stack e `exception.message` nunca são retornados; `details` (opcional, somente em validação) contém apenas nome do campo e tipo controlado. O `X-Request-Id` retornado é sempre gerado pelo backend. Códigos implementados: `VALIDATION_ERROR`, `MALFORMED_JSON`, `BAD_REQUEST`, `NOT_FOUND`, `METHOD_NOT_ALLOWED`, `PAYLOAD_TOO_LARGE`, `UNSUPPORTED_MEDIA_TYPE`, `RATE_LIMIT_EXCEEDED`, `INTERNAL_SERVER_ERROR` (400/404/405/413/415/429/500). Detalhes em [`docs/architecture/api.md`](../architecture/api.md).
+
+## Lifecycle
+
+- `SIGTERM` e `SIGINT` iniciam encerramento ordenado; sockets e timers são liberados.
+- O NestJS pode reemitir o sinal após concluir o shutdown, resultando em exit code nulo acompanhado do sinal — **isso não é uma falha**.
+- Nenhum comportamento específico de orquestrador é prometido nesta fase.
 
 ## Portas e serviços
 

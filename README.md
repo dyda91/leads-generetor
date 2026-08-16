@@ -2,7 +2,7 @@
 
 Sistema de geração de leads empresariais: busca de empresas por segmento e localização (via Google Places API, somente pelo backend), organização de leads, listas de prospecção, exportação em CSV/XLSX e auditoria de ações sensíveis.
 
-> Status: fundação do monorepo em construção. Recursos de negócio serão adicionados em mudanças planejadas via OpenSpec.
+> Status: fundação do monorepo em construção. Um shell de API NestJS seguro de runtime já existe (health mínimo, fail-fast de configuração, headers, CORS, validação, erros centralizados, request ID e rate limit global). Recursos de negócio serão adicionados em mudanças planejadas via OpenSpec. Superfície pública e limites: [`docs/architecture/api.md`](docs/architecture/api.md).
 
 ## Stack
 
@@ -72,7 +72,7 @@ docker compose -f infrastructure/docker-compose.dev.yml logs postgres
 docker compose -f infrastructure/docker-compose.dev.yml exec postgres pg_isready -U leads_dev -d leads_dev
 ```
 
-O processo do PostgreSQL executa sem root (entrypoint oficial). Os dados persistem em volume nomeado (`leads-postgres-data`). A `DATABASE_URL` da API não é montada automaticamente: configure-a localmente no `apps/api/.env` (ver `apps/api/.env.example`).
+O processo do PostgreSQL executa sem root (entrypoint oficial). Os dados persistem em volume nomeado (`leads-postgres-data`). A API lê as variáveis do **ambiente do processo** (não carrega `.env` automaticamente — ver [`docs/architecture/api.md`](docs/architecture/api.md)); `DATABASE_URL` é reservada para a futura mudança de banco e não é necessária nesta fase.
 
 ## Comandos
 

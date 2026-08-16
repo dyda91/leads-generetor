@@ -15,8 +15,9 @@ Sistema web para gerar e gerenciar leads empresariais: busca de empresas por seg
 - Qualidade: Husky + lint-staged (pre-commit), Playwright config base (sem testes), gates `pnpm check`.
 - Segredos: `.env.example` por app/infra; detecção de segredos via `scripts/check-secrets` (secretlint).
 - Desenvolvimento local: PostgreSQL em container via `infrastructure/docker-compose.dev.yml`.
+- **API (shell NestJS seguro de runtime):** fail-fast de configuração, `GET /health` mínimo, headers Helmet/CSP/HSTS, CORS por allowlist, limites de corpo, ValidationPipe, contrato de erros centralizado, request ID server-generated, rate limit global e shutdown ordenado. Detalhes da superfície pública e limites em [`docs/architecture/api.md`](api.md). **Ainda não há** autenticação, banco (Prisma/PostgreSQL), Google Places, leads ou frontend conectado.
 
-**Planejado (mudanças futuras):** web (React + Vite + Tailwind + shadcn/ui), api (NestJS + Prisma + PostgreSQL), autenticação e autorização, busca Google Places, gestão de leads, listas e pipeline, exportação, auditoria/observabilidade, hardening de produção e CI.
+**Planejado (mudanças futuras):** web (React + Vite + Tailwind + shadcn/ui), persistência com Prisma + PostgreSQL, autenticação e autorização, busca Google Places, gestão de leads, listas e pipeline, exportação, auditoria/observabilidade, hardening de produção e CI.
 
 ## Monorepo — responsabilidade de cada workspace
 

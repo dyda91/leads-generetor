@@ -67,7 +67,7 @@ Critério de conclusão: todos os cenários da spec possuem teste correspondente
 
 Comandos: revisão manual de `docs/architecture` e `docs/security`
 
-- [ ] 8.1 Documentar a superfície pública criada (health, contrato de erros, CORS, request ID sempre gerado no servidor, CSP restritiva, HSTS somente em produção) e os limites desta mudança
+- [x] 8.1 Documentar a superfície pública criada (health, contrato de erros, CORS, request ID sempre gerado no servidor, CSP restritiva, HSTS somente em produção) e os limites desta mudança
 
 Critério de conclusão: documentação consistente com a spec e sem afirmar controles futuros como ativos.
 

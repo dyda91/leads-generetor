@@ -7,6 +7,10 @@ export interface Environment {
   BODY_LIMIT_BYTES: number;
   RATE_LIMIT_TTL_MS: number;
   RATE_LIMIT_MAX: number;
+  SESSION_ABSOLUTE_TTL_MS: number;
+  SESSION_IDLE_TTL_MS: number;
+  SESSION_TOUCH_INTERVAL_MS: number;
+  DATABASE_URL: string;
 }
 
 export interface EnvironmentIssue {

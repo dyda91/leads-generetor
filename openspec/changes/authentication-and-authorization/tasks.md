@@ -2,11 +2,11 @@
 
 Comandos: `pnpm --filter @leads/api typecheck` · `pnpm --filter @leads/api build` · `pnpm --filter @leads/api test`
 
-- [ ] 1.1 Consultar docs oficiais e fixar versões exatas de `prisma`/`@prisma/client` (Node 24/PostgreSQL 17); configurar `PrismaModule` global e fechar o client no shutdown
-- [ ] 1.2 Definir schema em `apps/api/prisma/schema.prisma`: `User` (id cuid, email único, passwordHash, role, status, passwordChangedAt, createdAt, updatedAt) e `Session` (id cuid, userId, tokenHash único, csrfTokenHash único, expiresAt, lastUsedAt, revokedAt, createdAt); enums mínimos ADMIN e ACTIVE/INACTIVE
-- [ ] 1.3 Gerar migration versionada não destrutiva; aplicar em desenvolvimento; Prisma Studio não exposto; PostgreSQL permanece loopback
-- [ ] 1.4 Adicionar serviço `postgres-test` no Docker Compose (porta loopback exclusiva 127.0.0.1:5434, banco/usuário próprios, `tmpfs`); definir comandos de subir/aplicar migration/testar/limpar/derrubar somente o serviço de teste
-- [ ] 1.5 Guard de banco de teste: testes recusam rodar se `DATABASE_URL_TEST` não corresponder ao banco de teste esperado; nenhum comando usa `prisma migrate reset` contra o banco de desenvolvimento
+- [x] 1.1 Consultar docs oficiais e fixar versões exatas de `prisma`/`@prisma/client` (Node 24/PostgreSQL 17); configurar `PrismaModule` global e fechar o client no shutdown
+- [x] 1.2 Definir schema em `apps/api/prisma/schema.prisma`: `User` (id cuid, email único, passwordHash, role, status, passwordChangedAt, createdAt, updatedAt) e `Session` (id cuid, userId, tokenHash único, csrfTokenHash único, expiresAt, lastUsedAt, revokedAt, createdAt); enums mínimos ADMIN e ACTIVE/INACTIVE
+- [x] 1.3 Gerar migration versionada não destrutiva; aplicar em desenvolvimento; Prisma Studio não exposto; PostgreSQL permanece loopback
+- [x] 1.4 Adicionar serviço `postgres-test` no Docker Compose (porta loopback exclusiva 127.0.0.1:5434, banco/usuário próprios, `tmpfs`); definir comandos de subir/aplicar migration/testar/limpar/derrubar somente o serviço de teste
+- [x] 1.5 Guard de banco de teste: testes recusam rodar se `DATABASE_URL_TEST` não corresponder ao banco de teste esperado; nenhum comando usa `prisma migrate reset` contra o banco de desenvolvimento
 
 Critério de conclusão: `typecheck`/`build` sem erros; migration aplicada; unicidade de e-mail/tokenHash/csrfTokenHash comprovada; comandos de teste documentados e funcionais; sem SQLite.
 
@@ -14,11 +14,11 @@ Critério de conclusão: `typecheck`/`build` sem erros; migration aplicada; unic
 
 Comandos: `pnpm --filter @leads/api test` · `pnpm --filter @leads/api lint`
 
-- [ ] 2.1 Tornar `DATABASE_URL` obrigatória (ausente/inválida bloqueia boot sem imprimir o valor); decidir e registrar: boot exige banco acessível; indisponibilidade em runtime → auth retorna 500 genérico e health permanece up
-- [ ] 2.2 Adicionar variáveis tipadas (parâmetros Argon2id, expiração absoluta, inatividade, intervalo de `lastUsedAt`, rate limit de auth, política de cookie) com faixas seguras e produção estrita
-- [ ] 2.3 Rejeitar configuração de cookie não `Secure` em produção; nunca emitir os dois cookies simultaneamente; ignorar cookie de nome de outro ambiente
-- [ ] 2.4 Criar módulo de autenticação com DTOs estritos (login, change-password) usando decorators explícitos e rejeição de propriedades desconhecidas
-- [ ] 2.5 Definir constantes centralizadas de segurança (nomes de cookie por ambiente, headers, prefixos de hash) sem expor valores sensíveis
+- [x] 2.1 Tornar `DATABASE_URL` obrigatória (ausente/inválida bloqueia boot sem imprimir o valor); decidir e registrar: boot exige banco acessível; indisponibilidade em runtime → auth retorna 500 genérico e health permanece up
+- [x] 2.2 Adicionar variáveis tipadas (parâmetros Argon2id, expiração absoluta, inatividade, intervalo de `lastUsedAt`, rate limit de auth, política de cookie) com faixas seguras e produção estrita
+- [x] 2.3 Rejeitar configuração de cookie não `Secure` em produção; nunca emitir os dois cookies simultaneamente; ignorar cookie de nome de outro ambiente
+- [x] 2.4 Criar módulo de autenticação com DTOs estritos (login, change-password) usando decorators explícitos e rejeição de propriedades desconhecidas
+- [x] 2.5 Definir constantes centralizadas de segurança (nomes de cookie por ambiente, headers, prefixos de hash) sem expor valores sensíveis
 
 Critério de conclusão: env de auth validada no boot (valores inválidos/fora dos limites bloqueiam sem imprimir valores); DTOs rejeitam propriedades desconhecidas; política de cookie por ambiente testada.
 

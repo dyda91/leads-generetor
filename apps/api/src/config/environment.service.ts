@@ -14,6 +14,10 @@ export class EnvironmentService {
     const bodyLimitBytes = config.get<number>('BODY_LIMIT_BYTES');
     const rateLimitTtlMs = config.get<number>('RATE_LIMIT_TTL_MS');
     const rateLimitMax = config.get<number>('RATE_LIMIT_MAX');
+    const sessionAbsoluteTtlMs = config.get<number>('SESSION_ABSOLUTE_TTL_MS');
+    const sessionIdleTtlMs = config.get<number>('SESSION_IDLE_TTL_MS');
+    const sessionTouchIntervalMs = config.get<number>('SESSION_TOUCH_INTERVAL_MS');
+    const databaseUrl = config.get<string>('DATABASE_URL');
 
     if (
       nodeEnv === undefined ||
@@ -21,7 +25,11 @@ export class EnvironmentService {
       corsOrigins === undefined ||
       bodyLimitBytes === undefined ||
       rateLimitTtlMs === undefined ||
-      rateLimitMax === undefined
+      rateLimitMax === undefined ||
+      sessionAbsoluteTtlMs === undefined ||
+      sessionIdleTtlMs === undefined ||
+      sessionTouchIntervalMs === undefined ||
+      databaseUrl === undefined
     ) {
       throw new Error('Validated environment is not available.');
     }
@@ -33,7 +41,27 @@ export class EnvironmentService {
       BODY_LIMIT_BYTES: bodyLimitBytes,
       RATE_LIMIT_TTL_MS: rateLimitTtlMs,
       RATE_LIMIT_MAX: rateLimitMax,
+      SESSION_ABSOLUTE_TTL_MS: sessionAbsoluteTtlMs,
+      SESSION_IDLE_TTL_MS: sessionIdleTtlMs,
+      SESSION_TOUCH_INTERVAL_MS: sessionTouchIntervalMs,
+      DATABASE_URL: databaseUrl,
     };
+  }
+
+  get databaseUrl(): string {
+    return this.environment.DATABASE_URL;
+  }
+
+  get sessionAbsoluteTtlMs(): number {
+    return this.environment.SESSION_ABSOLUTE_TTL_MS;
+  }
+
+  get sessionIdleTtlMs(): number {
+    return this.environment.SESSION_IDLE_TTL_MS;
+  }
+
+  get sessionTouchIntervalMs(): number {
+    return this.environment.SESSION_TOUCH_INTERVAL_MS;
   }
 
   get nodeEnv(): NodeEnv {

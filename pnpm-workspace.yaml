@@ -6,3 +6,7 @@ allowBuilds:
   '@fission-ai/openspec': false
   # Native binding shipped via optionalDependencies; postinstall (napi-postinstall) not required.
   unrs-resolver: false
+  # prisma CLI preinstall is only a Node-version check (Node >= 24.0 required; we use 24.17); no code download.
+  prisma: false
+  # Schema engine binary required by `prisma migrate`; postinstall is Prisma's official engine download (inspected).
+  '@prisma/engines': true

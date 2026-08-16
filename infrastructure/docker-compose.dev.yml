@@ -32,6 +32,34 @@ services:
     networks:
       - leads-dev
 
+  postgres-test:
+    # PostgreSQL isolado para testes, mesma imagem/digest do serviço de dev.
+    # Dados em tmpfs (não persistem); porta host exclusiva 5434 (loopback).
+    image: postgres@sha256:f86c774c7a51d0f05133f2ab70e4c384b589170458ab1df1ba83426d7cc30da7
+    restart: 'no'
+    stop_grace_period: 10s
+    ports:
+      # Somente loopback; nunca usar 0.0.0.0:5434:5432.
+      - '127.0.0.1:5434:5432'
+    environment:
+      # Usuário/banco próprios de teste; valores de infrastructure/.env ou do shell.
+      POSTGRES_USER: ${TEST_POSTGRES_USER:?TEST_POSTGRES_USER é obrigatório (copie infrastructure/.env.example para infrastructure/.env)}
+      POSTGRES_PASSWORD: ${TEST_POSTGRES_PASSWORD:?TEST_POSTGRES_PASSWORD é obrigatório (copie infrastructure/.env.example para infrastructure/.env)}
+      POSTGRES_DB: ${TEST_POSTGRES_DB:?TEST_POSTGRES_DB é obrigatório (copie infrastructure/.env.example para infrastructure/.env)}
+    tmpfs:
+      # Dados de teste em memória (uid/gid 999 = usuário postgres da imagem).
+      - '/var/lib/postgresql/data:rw,size=256m,uid=999,gid=999'
+    healthcheck:
+      test:
+        - 'CMD-SHELL'
+        - 'pg_isready -U "$${POSTGRES_USER}" -d "$${POSTGRES_DB}"'
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 10s
+    networks:
+      - leads-dev
+
 volumes:
   leads-postgres-data:
 

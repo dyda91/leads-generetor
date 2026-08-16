@@ -1,6 +1,6 @@
 import 'reflect-metadata';
 
-import { httpRequest } from './helpers';
+import { httpRequest, loadTestDatabaseUrl } from './helpers';
 
 import { Controller, Get } from '@nestjs/common';
 import type { INestApplication } from '@nestjs/common';
@@ -29,6 +29,7 @@ const testEnvironment = parseEnvironment({
   NODE_ENV: 'test',
   PORT: '3000',
   CORS_ORIGINS: 'https://app.example.com',
+  DATABASE_URL: loadTestDatabaseUrl(),
 });
 
 interface TestServer {

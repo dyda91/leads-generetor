@@ -1,6 +1,6 @@
 import 'reflect-metadata';
 
-import { httpRequest } from './helpers';
+import { httpRequest, loadTestDatabaseUrl } from './helpers';
 
 import type { INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
@@ -17,12 +17,14 @@ const defaultEnvironment = parseEnvironment({
   NODE_ENV: 'test',
   PORT: '3000',
   CORS_ORIGINS: 'https://app.example.com',
+  DATABASE_URL: loadTestDatabaseUrl(),
 });
 
 const productionEnvironment = parseEnvironment({
   NODE_ENV: 'production',
   PORT: '443',
   CORS_ORIGINS: 'https://app.example.com',
+  DATABASE_URL: loadTestDatabaseUrl(),
 });
 
 const limitedEnvironment = parseEnvironment({
@@ -31,6 +33,7 @@ const limitedEnvironment = parseEnvironment({
   CORS_ORIGINS: 'https://app.example.com',
   RATE_LIMIT_TTL_MS: '1000',
   RATE_LIMIT_MAX: '2',
+  DATABASE_URL: loadTestDatabaseUrl(),
 });
 
 const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;

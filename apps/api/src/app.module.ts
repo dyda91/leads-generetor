@@ -7,6 +7,7 @@ import type { DynamicModule } from '@nestjs/common';
 import { EnvironmentService } from './config/environment.service';
 import type { Environment } from './config/environment.types';
 import { HealthModule } from './health/health.module';
+import { PrismaModule } from './prisma/prisma.module';
 
 @Module({})
 export class AppModule {
@@ -28,6 +29,8 @@ export class AppModule {
           },
         ]),
         HealthModule,
+        // Persistence is always wired now: DATABASE_URL is required in every environment.
+        PrismaModule.register(environment.DATABASE_URL),
       ],
       providers: [
         EnvironmentService,

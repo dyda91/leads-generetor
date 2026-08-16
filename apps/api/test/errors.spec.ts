@@ -1,6 +1,6 @@
 import 'reflect-metadata';
 
-import { httpRequest } from './helpers';
+import { httpRequest, loadTestDatabaseUrl } from './helpers';
 import { gzipSync } from 'node:zlib';
 
 import { Body, Controller, Get, HttpCode, NotFoundException, Post, Res } from '@nestjs/common';
@@ -57,6 +57,7 @@ const testEnvironment = parseEnvironment({
   NODE_ENV: 'test',
   PORT: '3000',
   CORS_ORIGINS: 'https://app.example.com',
+  DATABASE_URL: loadTestDatabaseUrl(),
 });
 
 interface TestServer {

@@ -1,6 +1,6 @@
 import 'reflect-metadata';
 
-import { httpRequest } from './helpers';
+import { httpRequest, loadTestDatabaseUrl } from './helpers';
 import { gzipSync } from 'node:zlib';
 
 import { Body, Controller, Get, HttpCode, Post, Req } from '@nestjs/common';
@@ -48,12 +48,14 @@ const testEnvironment = parseEnvironment({
   NODE_ENV: 'test',
   PORT: '3000',
   CORS_ORIGINS: `${AUTHORIZED_ORIGIN}, http://localhost:4173`,
+  DATABASE_URL: loadTestDatabaseUrl(),
 });
 
 const productionEnvironment = parseEnvironment({
   NODE_ENV: 'production',
   PORT: '443',
   CORS_ORIGINS: AUTHORIZED_ORIGIN,
+  DATABASE_URL: loadTestDatabaseUrl(),
 });
 
 async function startServer(environment: Environment): Promise<TestServer> {

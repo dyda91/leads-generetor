@@ -6,6 +6,9 @@ dist/
 build/
 *.tsbuildinfo
 
+# Generated Prisma client (regenerated via `prisma generate`/postinstall)
+apps/api/src/generated/
+
 # Tests / coverage
 coverage/
 playwright-report/

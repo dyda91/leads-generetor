@@ -8,6 +8,8 @@ import { setTimeout as delay } from 'node:timers/promises';
 
 import { afterAll, beforeAll, describe, expect, it } from '@jest/globals';
 
+import { loadTestDatabaseUrl } from './helpers';
+
 const rootDir = path.resolve(__dirname, '..');
 const entryPath = path.join(rootDir, 'dist', 'main.js');
 const runningChildren: ChildProcess[] = [];
@@ -40,7 +42,7 @@ function freePort(): Promise<number> {
 function spawnApi(env: Record<string, string>): ChildProcess {
   const child = spawn(process.execPath, [entryPath], {
     cwd: rootDir,
-    env: { ...process.env, ...env },
+    env: { ...process.env, DATABASE_URL: loadTestDatabaseUrl(), ...env },
     stdio: ['ignore', 'pipe', 'pipe'],
   });
   runningChildren.push(child);

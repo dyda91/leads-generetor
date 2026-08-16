@@ -17,6 +17,18 @@ export const MIN_RATE_LIMIT_MAX = 1;
 export const MAX_RATE_LIMIT_MAX = 10_000;
 export const PRODUCTION_RATE_LIMIT_MAX = 1_000;
 
+export const DEFAULT_SESSION_ABSOLUTE_TTL_MS = 7 * 24 * 60 * 60 * 1000;
+export const MIN_SESSION_ABSOLUTE_TTL_MS = 60 * 60 * 1000;
+export const MAX_SESSION_ABSOLUTE_TTL_MS = 30 * 24 * 60 * 60 * 1000;
+
+export const DEFAULT_SESSION_IDLE_TTL_MS = 30 * 60 * 1000;
+export const MIN_SESSION_IDLE_TTL_MS = 5 * 60 * 1000;
+export const MAX_SESSION_IDLE_TTL_MS = 24 * 60 * 60 * 1000;
+
+export const DEFAULT_SESSION_TOUCH_INTERVAL_MS = 5 * 60 * 1000;
+export const MIN_SESSION_TOUCH_INTERVAL_MS = 60 * 1000;
+export const MAX_SESSION_TOUCH_INTERVAL_MS = 60 * 60 * 1000;
+
 const nonEmptyString = z.string('required').trim().min(1, { message: 'required' });
 
 const nodeEnvSchema = nonEmptyString.pipe(z.enum(nodeEnvValues, { message: 'invalid' }));
@@ -29,6 +41,19 @@ const emptyStringToUndefined = z.preprocess(
   (value) => (typeof value === 'string' && value.trim() === '' ? undefined : value),
   z.string().trim().optional(),
 );
+
+const databaseUrlSchema = nonEmptyString.superRefine((value, context) => {
+  let url: URL;
+  try {
+    url = new URL(value);
+  } catch {
+    context.addIssue({ code: z.ZodIssueCode.custom, path: [], message: 'invalid' });
+    return;
+  }
+  if (url.protocol !== 'postgresql:' && url.protocol !== 'postgres:') {
+    context.addIssue({ code: z.ZodIssueCode.custom, path: [], message: 'invalid' });
+  }
+});
 
 function optionalIntInRange(min: number, max: number, fallback: number) {
   return emptyStringToUndefined
@@ -60,6 +85,24 @@ const rateLimitMaxSchema = optionalIntInRange(
   MIN_RATE_LIMIT_MAX,
   MAX_RATE_LIMIT_MAX,
   DEFAULT_RATE_LIMIT_MAX,
+);
+
+const sessionAbsoluteTtlMsSchema = optionalIntInRange(
+  MIN_SESSION_ABSOLUTE_TTL_MS,
+  MAX_SESSION_ABSOLUTE_TTL_MS,
+  DEFAULT_SESSION_ABSOLUTE_TTL_MS,
+);
+
+const sessionIdleTtlMsSchema = optionalIntInRange(
+  MIN_SESSION_IDLE_TTL_MS,
+  MAX_SESSION_IDLE_TTL_MS,
+  DEFAULT_SESSION_IDLE_TTL_MS,
+);
+
+const sessionTouchIntervalMsSchema = optionalIntInRange(
+  MIN_SESSION_TOUCH_INTERVAL_MS,
+  MAX_SESSION_TOUCH_INTERVAL_MS,
+  DEFAULT_SESSION_TOUCH_INTERVAL_MS,
 );
 
 const corsOriginsSchema = emptyStringToUndefined.transform((value) => {
@@ -137,6 +180,10 @@ export const environmentSchema = z
     BODY_LIMIT_BYTES: bodyLimitBytesSchema,
     RATE_LIMIT_TTL_MS: rateLimitTtlMsSchema,
     RATE_LIMIT_MAX: rateLimitMaxSchema,
+    SESSION_ABSOLUTE_TTL_MS: sessionAbsoluteTtlMsSchema,
+    SESSION_IDLE_TTL_MS: sessionIdleTtlMsSchema,
+    SESSION_TOUCH_INTERVAL_MS: sessionTouchIntervalMsSchema,
+    DATABASE_URL: databaseUrlSchema,
   })
   .superRefine((environment, context) => {
     for (const entry of environment.CORS_ORIGINS) {
@@ -152,6 +199,20 @@ export const environmentSchema = z
         message: 'rate_limit_production_ineffective',
       });
     }
+    if (environment.SESSION_IDLE_TTL_MS >= environment.SESSION_ABSOLUTE_TTL_MS) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['SESSION_IDLE_TTL_MS'],
+        message: 'session_idle_must_be_less_than_absolute',
+      });
+    }
+    if (environment.SESSION_TOUCH_INTERVAL_MS >= environment.SESSION_IDLE_TTL_MS) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['SESSION_TOUCH_INTERVAL_MS'],
+        message: 'session_touch_must_be_less_than_idle',
+      });
+    }
   })
   .transform((environment) => ({
     ...environment,
@@ -165,6 +226,8 @@ const controlledCodes = new Set([
   'wildcard_forbidden_in_production',
   'https_required_in_production',
   'rate_limit_production_ineffective',
+  'session_idle_must_be_less_than_absolute',
+  'session_touch_must_be_less_than_idle',
 ]);
 
 const guidanceByCode: Readonly<Record<string, string>> = {
@@ -174,6 +237,10 @@ const guidanceByCode: Readonly<Record<string, string>> = {
   wildcard_forbidden_in_production: 'A wildcard origin is not allowed in production.',
   https_required_in_production: 'HTTP origins are not allowed in production.',
   rate_limit_production_ineffective: 'The rate limit would be ineffective in production.',
+  session_idle_must_be_less_than_absolute:
+    'The session idle TTL must be shorter than the absolute TTL.',
+  session_touch_must_be_less_than_idle:
+    'The session touch interval must be shorter than the idle TTL.',
 };
 
 const genericGuidance = 'The provided value is not valid for this variable.';

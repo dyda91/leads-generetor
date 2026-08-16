@@ -13,6 +13,7 @@ import { AppModule } from '../src/app.module';
 import { applyApplicationControls, applySecurityMiddleware } from '../src/bootstrap';
 import { parseEnvironment } from '../src/config/environment.schema';
 import type { Environment } from '../src/config/environment.types';
+import { loadTestDatabaseUrl } from './helpers';
 
 const BODY_LIMIT = 100_000;
 const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -46,6 +47,7 @@ const testEnvironment = parseEnvironment({
   NODE_ENV: 'test',
   PORT: '3000',
   CORS_ORIGINS: 'https://app.example.com',
+  DATABASE_URL: loadTestDatabaseUrl(),
 });
 
 interface TestServer {

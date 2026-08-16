@@ -1,6 +1,18 @@
 import http from 'node:http';
 import type { IncomingHttpHeaders } from 'node:http';
 
+import { validateTestDatabaseUrl } from './test-db-guard';
+
+/**
+ * Returns the validated DATABASE_URL for tests. Fails fast (via the guard) when
+ * DATABASE_URL_TEST is missing or does not match the isolated test database.
+ */
+export function loadTestDatabaseUrl(): string {
+  const url = process.env.DATABASE_URL_TEST;
+  validateTestDatabaseUrl(url);
+  return url ?? '';
+}
+
 export interface HttpResponse {
   status: number;
   headers: IncomingHttpHeaders;

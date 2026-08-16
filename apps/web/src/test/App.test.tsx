@@ -18,6 +18,13 @@ describe('App', () => {
     expect(screen.getByText('Aplicação em configuração')).toBeInTheDocument();
   });
 
+  it('uses the real design-system components (disabled future CTA, no fake links)', () => {
+    render(<App />);
+    expect(screen.getByRole('button', { name: 'Em breve' })).toBeDisabled();
+    expect(screen.getByRole('status')).toBeInTheDocument();
+    expect(screen.queryByRole('link')).toBeNull();
+  });
+
   it('does not call fetch while rendering', () => {
     const fetchSpy = vi.spyOn(globalThis, 'fetch');
     render(<App />);

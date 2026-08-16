@@ -14,11 +14,14 @@ Critério de conclusão: `lint`/`typecheck`/`build`/`test` do web verdes; `check
 
 Comandos: `pnpm --filter @leads/web lint` · `pnpm --filter @leads/web typecheck` · `pnpm --filter @leads/web test`
 
-- [ ] 2.1 Criar primitivas base (Button, Input, Label, Card, Skeleton, Form, Dialog/Drawer) a partir de shadcn/ui, customizadas com os tokens
-- [ ] 2.2 Implementar estados de loading, erro e vazio reutilizáveis (skeleton sem layout shift, alertas com `aria-live`, retry controlado)
-- [ ] 2.3 Garantir foco visível, contraste WCAG AA, tamanho de toque adequado e respeito à `prefers-reduced-motion`
+- [x] 2.1 Integrar Tailwind CSS ao Vite (plugin oficial `@tailwindcss/vite`) e centralizar os tokens semânticos em CSS custom properties (`globals.css`): light theme, sem dark mode, radius/shadows/spacing/font/sidebar e largura de conteúdo como tokens; reset/base, foco visível, font smoothing e `prefers-reduced-motion`
+- [x] 2.2 Criar primitivas base (Button com variantes/tamanhos/`asChild`/`type=button`, Input, Label, Card, Skeleton) customizadas com os tokens e o utilitário tipado `cn` (clsx + tailwind-merge)
+- [x] 2.3 Criar componentes de feedback (InlineAlert, EmptyState, LoadingState, ErrorState) com roles `alert`/`status`, `aria-live`, retry tipado e texto seguro (sem HTML interpretado)
+- [x] 2.4 Aplicar o design system ao placeholder (logo textual, card central, status "Aplicação em configuração", CTA desabilitado) e adicionar testes de tokens/contraste WCAG AA (cálculo), componentes, feedback e placeholder; validação visual do dev server
 
-Critério de conclusão: componentes com estados verificados por testes de render; foco visível e contraste AA; sem `dangerouslySetInnerHTML`/`eval`.
+Nota: Dialog, Drawer/Sheet, Form e Toast pertencem a tarefas posteriores (layout e autenticação) e não foram criados neste grupo.
+
+Critério de conclusão: componentes com estados verificados por testes; contraste WCAG AA comprovado por cálculo; foco visível e `prefers-reduced-motion` respeitados; sem `dangerouslySetInnerHTML`/`eval`; Tailwind compilado no build sem source maps.
 
 ## 3. API client
 

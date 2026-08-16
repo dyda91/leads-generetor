@@ -1,0 +1,137 @@
+@import 'tailwindcss';
+
+/* ============================================================================
+   Design tokens — single source of truth (CSS custom properties, light theme).
+   Semantic names only; components never reference raw color names directly.
+   ========================================================================== */
+
+:root {
+  /* Surfaces and text */
+  --background: #f6f8fb;
+  --foreground: #0f1b33;
+  --surface: #ffffff;
+  --surface-muted: #eef2f7;
+  --muted: #eef2f7;
+  --muted-foreground: #5b6b84;
+
+  /* Brand / actions */
+  --primary: #1d4ed8;
+  --primary-hover: #1e40af;
+  --primary-foreground: #ffffff;
+  --secondary: #e6ebf3;
+  --secondary-hover: #d9e1ee;
+
+  /* Lines */
+  --border: #c8d3e1;
+  --input: #6e7d94;
+  --ring: #2f6bff;
+
+  /* Feedback */
+  --success: #0f766e;
+  --success-foreground: #ffffff;
+  --warning: #b45309;
+  --warning-foreground: #ffffff;
+  --destructive: #b91c1c;
+  --destructive-hover: #991b1b;
+  --destructive-foreground: #ffffff;
+  --surface-info: #eaf1ff;
+  --surface-success: #e6f5f3;
+  --surface-warning: #fef3e2;
+  --surface-error: #fcebeb;
+
+  /* Radius */
+  --radius-sm: 0.25rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px rgb(15 27 51 / 0.06);
+  --shadow-md: 0 4px 12px rgb(15 27 51 / 0.08);
+  --shadow-lg: 0 8px 24px rgb(15 27 51 / 0.12);
+
+  /* Typography (local/system stack only — no remote fonts) */
+  --font-sans: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+
+  /* Motion and layout */
+  --transition-fast: 150ms ease;
+  --transition-slow: 250ms ease;
+  --container-content: 1200px;
+  --sidebar-width: 240px;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-surface: var(--surface);
+  --color-surface-muted: var(--surface-muted);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-hover: var(--secondary-hover);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-hover: var(--destructive-hover);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-surface-info: var(--surface-info);
+  --color-surface-success: var(--surface-success);
+  --color-surface-warning: var(--surface-warning);
+  --color-surface-error: var(--surface-error);
+  --radius-sm: var(--radius-sm);
+  --radius-md: var(--radius-md);
+  --radius-lg: var(--radius-lg);
+  --radius-xl: var(--radius-xl);
+  --shadow-sm: var(--shadow-sm);
+  --shadow-md: var(--shadow-md);
+  --shadow-lg: var(--shadow-lg);
+  --font-sans: var(--font-sans);
+}
+
+@layer base {
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    overflow-x: hidden;
+  }
+
+  body {
+    min-height: 100vh;
+    background-color: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  ::selection {
+    background-color: var(--primary);
+    color: var(--primary-foreground);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+  }
+}
+
+/* Reduced motion: disable the only animations used so far (skeleton pulse,
+   spinner). Unlayered rules win over the layered Tailwind utilities without
+   needing !important. */
+@media (prefers-reduced-motion: reduce) {
+  .animate-pulse,
+  .animate-spin {
+    animation: none;
+  }
+}

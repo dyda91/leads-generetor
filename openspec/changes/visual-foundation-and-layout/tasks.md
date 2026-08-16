@@ -47,14 +47,16 @@ Critério de conclusão: testes de single-flight, retry ≤1, 409, estados da un
 
 ## 5. Login
 
-Comandos: `pnpm --filter @leads/web test`
+Comandos: `pnpm --filter @leads/web test` · `pnpm --filter @leads/web lint` · `pnpm --filter @leads/web typecheck`
 
-- [ ] 5.1 Tela de login (marca, e-mail, senha, botão "entrar", loading, erro genérico, mostrar/ocultar senha opcional, autocomplete, acessibilidade); sem cadastro e sem "esqueci a senha"
-- [ ] 5.2 Chamada `POST /auth/login` com `credentials: include`; usuário e CSRF ficam em memória; senha removida da memória após sucesso/falha
-- [ ] 5.3 Tratamento 401 uniforme, 403 como origem/configuração, 429 como aguardar; sem revelar e-mail cadastrado
-- [ ] 5.4 Redirecionar para destino interno validado (sem open redirect) e impedir submissões duplicadas
+- [x] 5.1 Tela de login (marca, título "Acesse sua conta", e-mail, senha, botão "Entrar", loading acessível, erro genérico, mostrar/ocultar senha, autocomplete, acessibilidade, aviso de ambiente privado); sem cadastro e sem "esqueci a senha"
+- [x] 5.2 Login exclusivamente via `auth.login()` (credenciais em memória; CSRF nunca no login); senha limpa após sucesso; e-mail só trimado conforme contrato; sem persistência
+- [x] 5.3 Mapeamento controlado de erros (400/401 uniforme sem revelar e-mail cadastrado/403/429/timeout-rede-500), sem stack/requestId/status bruto/corpo da API
+- [x] 5.4 Integração de navegação pendente documentada: login expõe callback `onAuthenticated` (destino interno/open-redirect ficam no Grupo 6 — React Router, conforme artefatos); submissões duplicadas bloqueadas
 
-Critério de conclusão: testes de login válido/inválido, 401/403/429, sem open redirect, sem duplicação e sem persistência de senha/token.
+Nota: React Router pertence formalmente ao Grupo 6 (rotas protegidas); a tela foi implementada isoladamente e a navegação global será conectada ao `onAuthenticated` no Grupo 6.
+
+Critério de conclusão: testes de login válido/inválido, 401/403/429, sem duplicação, sem persistência de senha/token e sem redirecionamento global antecipado.
 
 ## 6. Rotas protegidas
 

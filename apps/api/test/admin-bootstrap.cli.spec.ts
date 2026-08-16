@@ -5,11 +5,17 @@ import path from 'node:path';
 
 import { describe, expect, it } from '@jest/globals';
 
-import { loadTestDatabaseUrl } from './helpers';
+import { buildFixturePostgresUrl, buildIsolatedChildEnv } from './helpers';
 
 const rootDir = path.resolve(__dirname, '..');
 const tsxCli = path.join(rootDir, 'node_modules', 'tsx', 'dist', 'cli.mjs');
 const script = path.join(rootDir, 'src', 'auth', 'bootstrap', 'admin-bootstrap.ts');
+const VALID_DATABASE_URL = buildFixturePostgresUrl({
+  username: 'leads',
+  password: 'secret',
+  port: '5432',
+  database: 'leads',
+});
 
 function runCli(
   args: string[],
@@ -18,7 +24,7 @@ function runCli(
   const result = spawnSync(process.execPath, [tsxCli, script, ...args], {
     cwd: rootDir,
     input: '',
-    env: { ...process.env, ...env },
+    env: buildIsolatedChildEnv(env),
     encoding: 'utf8',
     timeout: 30_000,
   });
@@ -36,7 +42,7 @@ describe('bootstrap-admin CLI', () => {
     const result = runCli([], {
       NODE_ENV: 'test',
       PORT: '3000',
-      DATABASE_URL: loadTestDatabaseUrl(),
+      DATABASE_URL: VALID_DATABASE_URL,
     });
     expect(result.status).toBe(1);
     expect(result.stderr).toContain('interactive terminal');

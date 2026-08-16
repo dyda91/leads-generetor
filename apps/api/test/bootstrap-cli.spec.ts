@@ -3,17 +3,15 @@ import 'reflect-metadata';
 import { describe, expect, it } from '@jest/globals';
 import { spawnSync } from 'node:child_process';
 
-import { buildFixturePostgresUrl } from './helpers';
+import { buildFixturePostgresUrl, buildIsolatedChildEnv } from './helpers';
 
 const CLI = 'src/auth/bootstrap/admin-bootstrap.ts';
-const VALID_DATABASE_URL =
-  process.env.DATABASE_URL_TEST ??
-  buildFixturePostgresUrl({
-    username: 'leads',
-    password: 'secret',
-    port: '5432',
-    database: 'leads',
-  });
+const VALID_DATABASE_URL = buildFixturePostgresUrl({
+  username: 'leads',
+  password: 'secret',
+  port: '5432',
+  database: 'leads',
+});
 
 interface CliResult {
   status: number;
@@ -24,7 +22,7 @@ interface CliResult {
 function runCli(environment: Record<string, string>, args: readonly string[] = []): CliResult {
   const result = spawnSync(process.execPath, ['--import', 'tsx', CLI, ...args], {
     cwd: process.cwd(),
-    env: { ...process.env, ...environment },
+    env: buildIsolatedChildEnv(environment),
     stdio: 'pipe',
     input: '',
     encoding: 'utf8',

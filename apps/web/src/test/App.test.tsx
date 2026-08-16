@@ -71,6 +71,21 @@ describe('App (integration with AuthProvider)', () => {
     await waitFor(() => expect(screen.queryByRole('heading', { level: 1 })).toBeNull());
   });
 
+  it('shows the login screen when unauthenticated (no placeholder flash)', async () => {
+    renderApp(() => Promise.reject(ApiError.http(401, { message: 'Autenticação necessária.' })));
+    expect(await screen.findByRole('heading', { name: 'Acesse sua conta' })).toBeInTheDocument();
+    expect(screen.getByLabelText('Senha')).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Em breve' })).toBeNull();
+  });
+
+  it('shows the placeholder, not the login form, when authenticated', async () => {
+    renderApp();
+    expect(
+      await screen.findByRole('heading', { name: 'Leads — Prospecção Empresarial' }),
+    ).toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: 'Acesse sua conta' })).toBeNull();
+  });
+
   it('does not call fetch while rendering', async () => {
     const fetchSpy = vi.spyOn(globalThis, 'fetch');
     renderApp();

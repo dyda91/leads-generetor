@@ -82,16 +82,20 @@ beforeAll(async () => {
 });
 
 afterEach(async () => {
-  await prisma.session.deleteMany({});
-  await prisma.user.update({
-    where: { id: USER_ID },
-    data: { status: 'ACTIVE', passwordChangedAt: null },
-  });
+  if (prisma !== undefined) {
+    await prisma.session.deleteMany({});
+    await prisma.user.update({
+      where: { id: USER_ID },
+      data: { status: 'ACTIVE', passwordChangedAt: null },
+    });
+  }
 });
 
 afterAll(async () => {
-  await prisma.user.deleteMany({});
-  await prisma.$disconnect();
+  if (prisma !== undefined) {
+    await prisma.user.deleteMany({});
+    await prisma.$disconnect();
+  }
 });
 
 describe('SessionService (isolated test database)', () => {

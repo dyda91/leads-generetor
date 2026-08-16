@@ -4,6 +4,7 @@ import { useAuth } from './auth/AuthProvider';
 import { ErrorState } from './components/feedback/error-state';
 import { Button } from './components/ui/button';
 import { Card, CardContent, CardFooter } from './components/ui/card';
+import { LoginScreen } from './features/login/LoginScreen';
 
 export function App() {
   const { state, retrySessionRestore } = useAuth();
@@ -26,6 +27,10 @@ export function App() {
         />
       </main>
     );
+  }
+
+  if (state.status === 'unauthenticated') {
+    return <LoginScreen />;
   }
 
   return (

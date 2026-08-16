@@ -40,6 +40,61 @@ export function buildFixturePostgresUrl(options: {
   return url.toString();
 }
 
+/**
+ * Neutral technical variables carried over to child processes. Everything else
+ * (database URLs, passwords, auth/session configuration, CI secrets) is
+ * deliberately NOT inherited, so a child scenario cannot be silently changed by
+ * the terminal or job that runs Jest.
+ */
+const CHILD_ENV_ALLOWLIST: readonly string[] = [
+  'COLORTERM',
+  'HOME',
+  'LANG',
+  'LC_ALL',
+  'LC_COLLATE',
+  'LC_CTYPE',
+  'LC_MESSAGES',
+  'LC_MONETARY',
+  'LC_NUMERIC',
+  'LC_TIME',
+  'LOGNAME',
+  'NO_COLOR',
+  'PATH',
+  'PWD',
+  'SHELL',
+  'TEMP',
+  'TERM',
+  'TERM_PROGRAM',
+  'TERM_PROGRAM_VERSION',
+  'TMP',
+  'TMPDIR',
+  'USER',
+];
+
+/**
+ * Builds the environment for a child process from scratch, carrying over only
+ * neutral technical variables. `overrides` are applied last, so a scenario can
+ * set exactly the variables it needs (e.g. a runtime-built fixture URL). Values
+ * are never printed or logged here.
+ */
+export function buildIsolatedChildEnv(
+  overrides: Readonly<Record<string, string | undefined>> = {},
+): Record<string, string> {
+  const environment: Record<string, string> = {};
+  for (const key of CHILD_ENV_ALLOWLIST) {
+    const value = process.env[key];
+    if (value !== undefined) {
+      environment[key] = value;
+    }
+  }
+  for (const [key, value] of Object.entries(overrides)) {
+    if (value !== undefined) {
+      environment[key] = value;
+    }
+  }
+  return environment;
+}
+
 export interface HttpResponse {
   status: number;
   headers: IncomingHttpHeaders;

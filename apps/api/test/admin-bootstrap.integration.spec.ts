@@ -33,12 +33,16 @@ beforeAll(async () => {
 });
 
 afterEach(async () => {
-  await prisma.session.deleteMany({});
-  await prisma.user.deleteMany({});
+  if (prisma !== undefined) {
+    await prisma.session.deleteMany({});
+    await prisma.user.deleteMany({});
+  }
 });
 
 afterAll(async () => {
-  await prisma.$disconnect();
+  if (prisma !== undefined) {
+    await prisma.$disconnect();
+  }
 });
 
 describe('AdminBootstrapService (isolated test database)', () => {

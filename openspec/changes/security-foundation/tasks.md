@@ -75,7 +75,7 @@ Critério de conclusão: documentação consistente com a spec e sem afirmar con
 
 Comandos: `pnpm check` · `pnpm check:secrets` · `pnpm audit` · `pnpm exec openspec validate security-foundation`
 
-- [ ] 9.1 Rodar gates completos (lint, typecheck, test, build, format, segredos) sem erros
-- [ ] 9.2 Revisão de segurança: headers comprovados, sem stack em produção, sem segredos versionados, portas/rotas documentadas
+- [x] 9.1 Rodar gates completos (lint, typecheck, test, build, format, segredos) sem erros
+- [x] 9.2 Revisão de segurança: headers comprovados, sem stack em produção, sem segredos versionados, portas/rotas documentadas
 
 Critério de conclusão: todos os comandos com exit code 0 e checklist de segurança revisado.

@@ -2,12 +2,13 @@
 
 Comandos: `pnpm --filter @leads/web lint` · `pnpm --filter @leads/web typecheck` · `pnpm --filter @leads/web build`
 
-- [ ] 1.1 Criar `apps/web` (Vite + React + TypeScript estrito) usando `@leads/typescript-config` (`tsconfig.web.json`) e `@leads/eslint-config` (config react), com scripts `dev`, `build`, `lint`, `typecheck`, `test` (exigidos por `check:workspaces`)
-- [ ] 1.2 Adicionar dependências fixadas (React, React DOM, React Router, Tailwind CSS, shadcn/ui primitives base, Lucide, Vitest, Testing Library) consultando as docs oficiais; sem Redux/Zustand salvo necessidade comprovada
-- [ ] 1.3 Configurar Tailwind CSS com tokens de design (cores azul profundo/verde-turquesa, neutros, spacing, radius, shadows, estados hover/focus/disabled/error/success; light theme) em um módulo único de tokens
-- [ ] 1.4 Configurar entry point, HTML semântico, título de página, `VITE_API_BASE_URL` pública (sem segredo) e `.env.example` sem valores reais
+- [x] 1.1 Criar `apps/web` (Vite + React + TypeScript estrito) usando `@leads/typescript-config` (`tsconfig.web.json`) e `@leads/eslint-config` (config react), com scripts `dev`, `build`, `preview`, `lint`, `typecheck`, `test`, `format`, `format:check`
+- [x] 1.2 Adicionar dependências mínimas fixadas (react, react-dom; dev: vite, @vitejs/plugin-react, @types/react, @types/react-dom, vitest, jsdom, @testing-library/react/dom/jest-dom, typescript), consultando as docs oficiais; sem Redux/Zustand
+- [x] 1.3 Configurar entry point, HTML semântico (`lang="pt-BR"`, título, meta), Vite em loopback `127.0.0.1:5173` com `strictPort` e sem source maps no build, e `.env.example` com `VITE_API_BASE_URL` pública (sem segredo)
 
-Critério de conclusão: `lint`/`typecheck`/`build` do web verdes; `check:workspaces` aceita `@leads/web`; nenhum segredo em variáveis `VITE_*`.
+Nota: React Router, Tailwind CSS, shadcn/ui e Lucide ficam para o grupo que efetivamente os utiliza (design system e rotas), conforme decisão aprovada; a configuração dos tokens visuais foi movida para o grupo 2.
+
+Critério de conclusão: `lint`/`typecheck`/`build`/`test` do web verdes; `check:workspaces` aceita `@leads/web`; nenhum segredo em variáveis `VITE_*`; Vite escuta somente em `127.0.0.1:5173`.
 
 ## 2. Design system e componentes-base
 

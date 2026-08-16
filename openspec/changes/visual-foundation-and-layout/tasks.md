@@ -25,14 +25,14 @@ Critério de conclusão: componentes com estados verificados por testes; contras
 
 ## 3. API client
 
-Comandos: `pnpm --filter @leads/web test`
+Comandos: `pnpm --filter @leads/web test` · `pnpm --filter @leads/web lint` · `pnpm --filter @leads/web typecheck`
 
-- [ ] 3.1 Criar cliente centralizado com `VITE_API_BASE_URL`, `credentials: include`, `Content-Type` controlado, timeout via `AbortController`
-- [ ] 3.2 Enviar `X-CSRF-Token` SOMENTE em mutações protegidas (logout, change-password), nunca no login
-- [ ] 3.3 Parsing defensivo e normalização de erros (sem mensagem bruta/stack; `requestId` exibido só em erro técnico controlado; 401/403/409/429/500 mapeados)
-- [ ] 3.4 Sem auto-retry de login/logout/change-password e sem repetição silenciosa de mutações
+- [x] 3.1 Validar a `VITE_API_BASE_URL` (injetada pelo Vite em dev/build; alterá-la exige reiniciar o dev server ou reconstruir o bundle) no bootstrap do frontend (http/https, origem apenas, sem credentials/query/fragment, HTTPS em produção, erro controlado) e criar cliente centralizado com `credentials: include`, `Content-Type`/`Accept` coerentes e timeout via `AbortController` (timer sempre limpo; cancelamento externo distinguido de timeout)
+- [x] 3.2 Enviar `X-CSRF-Token` SOMENTE em mutações protegidas (logout, change-password, recebido como argumento e mantido fora do cliente), nunca em login, `/me` ou sem necessidade
+- [x] 3.3 Contratos tipados (`login`, `getCurrentSession`, `logout`, `changePassword`) com validação defensiva em runtime (zod), envelopes de erro tipados (`ApiError` com status/code/requestId/details e mensagens controladas em português) e parsing defensivo sem corpo bruto/stack/valores enviados
+- [x] 3.4 Sem auto-retry de login/logout/change-password e sem repetição silenciosa de mutações; endpoints como constantes internas resolvidas apenas contra a origem validada (sem URLs externas/absolutas)
 
-Critério de conclusão: testes provam `credentials: include`, CSRF apenas em mutações, timeout, parsing defensivo e ausência de erro bruto; nenhum token em storage/log.
+Critério de conclusão: testes provam `credentials: include`, CSRF apenas em mutações, endpoints/métodos exatos, timeout/cancelamento/timer limpo, parsing defensivo, erros 400/401/403/409/429/500 controlados e ausência de erro bruto; nenhum token em storage/URL/log.
 
 ## 4. Estado de autenticação
 

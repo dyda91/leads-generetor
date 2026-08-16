@@ -108,6 +108,10 @@ describe('parseEnvironment', () => {
       SESSION_ABSOLUTE_TTL_MS: 604_800_000,
       SESSION_IDLE_TTL_MS: 1_800_000,
       SESSION_TOUCH_INTERVAL_MS: 300_000,
+      ARGON2_MEMORY_COST: 19_456,
+      ARGON2_TIME_COST: 2,
+      ARGON2_PARALLELISM: 1,
+      ARGON2_HASH_LENGTH: 32,
       DATABASE_URL: VALID_DATABASE_URL,
     });
   });
@@ -129,6 +133,10 @@ describe('parseEnvironment', () => {
       SESSION_ABSOLUTE_TTL_MS: 604_800_000,
       SESSION_IDLE_TTL_MS: 1_800_000,
       SESSION_TOUCH_INTERVAL_MS: 300_000,
+      ARGON2_MEMORY_COST: 19_456,
+      ARGON2_TIME_COST: 2,
+      ARGON2_PARALLELISM: 1,
+      ARGON2_HASH_LENGTH: 32,
       DATABASE_URL: VALID_DATABASE_URL,
     });
   });
@@ -452,5 +460,63 @@ describe('parseEnvironment', () => {
     expect(error.message).not.toContain('3600000');
     expect(error.message).not.toContain('999999999');
     expect(JSON.stringify(error.issues)).not.toContain('3600000');
+  });
+
+  it('accepts the maximum Argon2 values', () => {
+    const environment = parseEnvironment({
+      ...validDev,
+      ARGON2_MEMORY_COST: '262144',
+      ARGON2_TIME_COST: '5',
+      ARGON2_PARALLELISM: '4',
+      ARGON2_HASH_LENGTH: '64',
+    });
+    expect(environment.ARGON2_MEMORY_COST).toBe(262_144);
+    expect(environment.ARGON2_TIME_COST).toBe(5);
+    expect(environment.ARGON2_PARALLELISM).toBe(4);
+    expect(environment.ARGON2_HASH_LENGTH).toBe(64);
+  });
+
+  it('rejects an Argon2 value above the maximum', () => {
+    for (const [field, value] of [
+      ['ARGON2_MEMORY_COST', '262145'],
+      ['ARGON2_TIME_COST', '6'],
+      ['ARGON2_PARALLELISM', '5'],
+      ['ARGON2_HASH_LENGTH', '65'],
+    ] as const) {
+      const issues = validationErrorFor({ ...validDev, [field]: value }).issues;
+      expect(hasIssue(issues, field, 'out_of_range')).toBe(true);
+    }
+  });
+
+  it('rejects an Argon2 value below the minimum', () => {
+    for (const [field, value] of [
+      ['ARGON2_MEMORY_COST', '19455'],
+      ['ARGON2_TIME_COST', '1'],
+      ['ARGON2_PARALLELISM', '0'],
+      ['ARGON2_HASH_LENGTH', '15'],
+    ] as const) {
+      const issues = validationErrorFor({ ...validDev, [field]: value }).issues;
+      expect(hasIssue(issues, field, 'out_of_range')).toBe(true);
+    }
+  });
+
+  it('keeps Argon2 default values when absent', () => {
+    const environment = parseEnvironment(validDev);
+    expect(environment.ARGON2_MEMORY_COST).toBe(19_456);
+    expect(environment.ARGON2_TIME_COST).toBe(2);
+    expect(environment.ARGON2_PARALLELISM).toBe(1);
+    expect(environment.ARGON2_HASH_LENGTH).toBe(32);
+  });
+
+  it('keeps Argon2 error messages free of values', () => {
+    const error = validationErrorFor({
+      ...validDev,
+      ARGON2_MEMORY_COST: '262145',
+      ARGON2_TIME_COST: '999999',
+    });
+    expect(error.message).not.toContain('262145');
+    expect(error.message).not.toContain('999999');
+    expect(JSON.stringify(error.issues)).not.toContain('262145');
+    expect(JSON.stringify(error.issues)).not.toContain('999999');
   });
 });

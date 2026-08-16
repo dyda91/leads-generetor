@@ -10,3 +10,7 @@ allowBuilds:
   prisma: false
   # Schema engine binary required by `prisma migrate`; postinstall is Prisma's official engine download (inspected).
   '@prisma/engines': true
+  # Native Argon2id binding; install loads the official prebuilt binary (node-gyp-build, inspected).
+  argon2: true
+  # esbuild binary required by tsx (bootstrap-admin) and @nestjs/cli webpack tooling; official install (inspected).
+  esbuild: true

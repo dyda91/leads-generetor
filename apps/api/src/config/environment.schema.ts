@@ -29,6 +29,22 @@ export const DEFAULT_SESSION_TOUCH_INTERVAL_MS = 5 * 60 * 1000;
 export const MIN_SESSION_TOUCH_INTERVAL_MS = 60 * 1000;
 export const MAX_SESSION_TOUCH_INTERVAL_MS = 60 * 60 * 1000;
 
+export const DEFAULT_ARGON2_MEMORY_COST = 19_456;
+export const MIN_ARGON2_MEMORY_COST = 19_456;
+export const MAX_ARGON2_MEMORY_COST = 262_144;
+
+export const DEFAULT_ARGON2_TIME_COST = 2;
+export const MIN_ARGON2_TIME_COST = 2;
+export const MAX_ARGON2_TIME_COST = 5;
+
+export const DEFAULT_ARGON2_PARALLELISM = 1;
+export const MIN_ARGON2_PARALLELISM = 1;
+export const MAX_ARGON2_PARALLELISM = 4;
+
+export const DEFAULT_ARGON2_HASH_LENGTH = 32;
+export const MIN_ARGON2_HASH_LENGTH = 16;
+export const MAX_ARGON2_HASH_LENGTH = 64;
+
 const nonEmptyString = z.string('required').trim().min(1, { message: 'required' });
 
 const nodeEnvSchema = nonEmptyString.pipe(z.enum(nodeEnvValues, { message: 'invalid' }));
@@ -103,6 +119,30 @@ const sessionTouchIntervalMsSchema = optionalIntInRange(
   MIN_SESSION_TOUCH_INTERVAL_MS,
   MAX_SESSION_TOUCH_INTERVAL_MS,
   DEFAULT_SESSION_TOUCH_INTERVAL_MS,
+);
+
+const argon2MemoryCostSchema = optionalIntInRange(
+  MIN_ARGON2_MEMORY_COST,
+  MAX_ARGON2_MEMORY_COST,
+  DEFAULT_ARGON2_MEMORY_COST,
+);
+
+const argon2TimeCostSchema = optionalIntInRange(
+  MIN_ARGON2_TIME_COST,
+  MAX_ARGON2_TIME_COST,
+  DEFAULT_ARGON2_TIME_COST,
+);
+
+const argon2ParallelismSchema = optionalIntInRange(
+  MIN_ARGON2_PARALLELISM,
+  MAX_ARGON2_PARALLELISM,
+  DEFAULT_ARGON2_PARALLELISM,
+);
+
+const argon2HashLengthSchema = optionalIntInRange(
+  MIN_ARGON2_HASH_LENGTH,
+  MAX_ARGON2_HASH_LENGTH,
+  DEFAULT_ARGON2_HASH_LENGTH,
 );
 
 const corsOriginsSchema = emptyStringToUndefined.transform((value) => {
@@ -183,6 +223,10 @@ export const environmentSchema = z
     SESSION_ABSOLUTE_TTL_MS: sessionAbsoluteTtlMsSchema,
     SESSION_IDLE_TTL_MS: sessionIdleTtlMsSchema,
     SESSION_TOUCH_INTERVAL_MS: sessionTouchIntervalMsSchema,
+    ARGON2_MEMORY_COST: argon2MemoryCostSchema,
+    ARGON2_TIME_COST: argon2TimeCostSchema,
+    ARGON2_PARALLELISM: argon2ParallelismSchema,
+    ARGON2_HASH_LENGTH: argon2HashLengthSchema,
     DATABASE_URL: databaseUrlSchema,
   })
   .superRefine((environment, context) => {

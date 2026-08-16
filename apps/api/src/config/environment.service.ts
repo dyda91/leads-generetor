@@ -17,6 +17,10 @@ export class EnvironmentService {
     const sessionAbsoluteTtlMs = config.get<number>('SESSION_ABSOLUTE_TTL_MS');
     const sessionIdleTtlMs = config.get<number>('SESSION_IDLE_TTL_MS');
     const sessionTouchIntervalMs = config.get<number>('SESSION_TOUCH_INTERVAL_MS');
+    const argon2MemoryCost = config.get<number>('ARGON2_MEMORY_COST');
+    const argon2TimeCost = config.get<number>('ARGON2_TIME_COST');
+    const argon2Parallelism = config.get<number>('ARGON2_PARALLELISM');
+    const argon2HashLength = config.get<number>('ARGON2_HASH_LENGTH');
     const databaseUrl = config.get<string>('DATABASE_URL');
 
     if (
@@ -29,6 +33,10 @@ export class EnvironmentService {
       sessionAbsoluteTtlMs === undefined ||
       sessionIdleTtlMs === undefined ||
       sessionTouchIntervalMs === undefined ||
+      argon2MemoryCost === undefined ||
+      argon2TimeCost === undefined ||
+      argon2Parallelism === undefined ||
+      argon2HashLength === undefined ||
       databaseUrl === undefined
     ) {
       throw new Error('Validated environment is not available.');
@@ -44,6 +52,10 @@ export class EnvironmentService {
       SESSION_ABSOLUTE_TTL_MS: sessionAbsoluteTtlMs,
       SESSION_IDLE_TTL_MS: sessionIdleTtlMs,
       SESSION_TOUCH_INTERVAL_MS: sessionTouchIntervalMs,
+      ARGON2_MEMORY_COST: argon2MemoryCost,
+      ARGON2_TIME_COST: argon2TimeCost,
+      ARGON2_PARALLELISM: argon2Parallelism,
+      ARGON2_HASH_LENGTH: argon2HashLength,
       DATABASE_URL: databaseUrl,
     };
   }
@@ -62,6 +74,22 @@ export class EnvironmentService {
 
   get sessionTouchIntervalMs(): number {
     return this.environment.SESSION_TOUCH_INTERVAL_MS;
+  }
+
+  get argon2MemoryCost(): number {
+    return this.environment.ARGON2_MEMORY_COST;
+  }
+
+  get argon2TimeCost(): number {
+    return this.environment.ARGON2_TIME_COST;
+  }
+
+  get argon2Parallelism(): number {
+    return this.environment.ARGON2_PARALLELISM;
+  }
+
+  get argon2HashLength(): number {
+    return this.environment.ARGON2_HASH_LENGTH;
   }
 
   get nodeEnv(): NodeEnv {

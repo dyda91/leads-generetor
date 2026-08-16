@@ -26,10 +26,10 @@ Critério de conclusão: env de auth validada no boot (valores inválidos/fora d
 
 Comandos: `pnpm --filter @leads/api test` (unit de hashing/política) · execução manual segura
 
-- [ ] 3.1 Implementar hashing Argon2id com parâmetros configuráveis (memória/tempo/paralelismo) e verificação com comparação segura
-- [ ] 3.2 Implementar política de senha por comprimento (mínimo/máximo) com rejeição antes do hash; rehash transparente quando parâmetros mudam
-- [ ] 3.3 Criar comando interativo `bootstrap-admin` exigindo TTY: leitura sem eco, confirmação, senha não aceita via argumento CLI nem variável de ambiente comum, falha segura em ambiente não interativo, Ctrl+C limpa buffers e fecha conexão
-- [ ] 3.4 Bootstrap em transação com unicidade; falha (409) se admin já existir sem alterar dados; nunca imprime senha, hash ou e-mail; sem credencial padrão
+- [x] 3.1 Implementar hashing Argon2id com parâmetros configuráveis (memória/tempo/paralelismo) e verificação com comparação segura
+- [x] 3.2 Implementar política de senha por comprimento (mínimo/máximo) com rejeição antes do hash; rehash transparente quando parâmetros mudam
+- [x] 3.3 Criar comando interativo `bootstrap-admin` exigindo TTY: leitura sem eco, confirmação, senha não aceita via argumento CLI nem variável de ambiente comum, falha segura em ambiente não interativo, Ctrl+C limpa buffers e fecha conexão
+- [x] 3.4 Bootstrap em transação com unicidade; falha (409) se admin já existir sem alterar dados; nunca imprime senha, hash ou e-mail; sem credencial padrão
 
 Critério de conclusão: testes negativos (hash Argon2id, verificação, limites, rehash) verdes; bootstrap interativo recusa admin existente e não expõe credenciais; comando separado de troca/recuperação administrativa fica como opção futura não implementada.
 

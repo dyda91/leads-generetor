@@ -10,6 +10,10 @@ export interface Environment {
   SESSION_ABSOLUTE_TTL_MS: number;
   SESSION_IDLE_TTL_MS: number;
   SESSION_TOUCH_INTERVAL_MS: number;
+  ARGON2_MEMORY_COST: number;
+  ARGON2_TIME_COST: number;
+  ARGON2_PARALLELISM: number;
+  ARGON2_HASH_LENGTH: number;
   DATABASE_URL: string;
 }
 

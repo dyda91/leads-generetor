@@ -60,6 +60,22 @@ function waitForExit(child: ChildProcess, timeoutMs: number): Promise<number | n
   });
 }
 
+function waitForExitWithSignal(
+  child: ChildProcess,
+  timeoutMs: number,
+): Promise<{ code: number | null; signal: NodeJS.Signals | null }> {
+  return new Promise((resolve, reject) => {
+    const timer = setTimeout(() => {
+      child.kill('SIGKILL');
+      reject(new Error('The child process did not exit within the timeout.'));
+    }, timeoutMs);
+    child.once('exit', (code, signal) => {
+      clearTimeout(timer);
+      resolve({ code, signal: signal ?? null });
+    });
+  });
+}
+
 async function waitForListening(port: number, timeoutMs: number): Promise<void> {
   const deadline = Date.now() + timeoutMs;
   while (Date.now() < deadline) {
@@ -153,4 +169,32 @@ describe('bootstrap process', () => {
 
     await waitForExit(child, 10000);
   }, 30000);
+
+  describe('graceful shutdown', () => {
+    async function bootAndSignal(
+      signal: NodeJS.Signals,
+    ): Promise<{ code: number | null; signal: NodeJS.Signals | null; port: number }> {
+      const port = await freePort();
+      const child = spawnApi({ NODE_ENV: 'development', PORT: String(port) });
+      await waitForListening(port, 15000);
+      child.kill(signal);
+      const { code, signal: receivedSignal } = await waitForExitWithSignal(child, 10000);
+      return { code, signal: receivedSignal, port };
+    }
+
+    it('shuts down orderly and releases the port on SIGTERM', async () => {
+      const { code, signal, port } = await bootAndSignal('SIGTERM');
+      await expect(isPortOpen(port)).resolves.toBe(false);
+      // Nest 11 default: graceful shutdown completes, then the signal is re-raised.
+      expect(code).toBeNull();
+      expect(signal).toBe('SIGTERM');
+    }, 30000);
+
+    it('shuts down orderly and releases the port on SIGINT', async () => {
+      const { code, signal, port } = await bootAndSignal('SIGINT');
+      await expect(isPortOpen(port)).resolves.toBe(false);
+      expect(code).toBeNull();
+      expect(signal).toBe('SIGINT');
+    }, 30000);
+  });
 });

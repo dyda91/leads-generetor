@@ -58,8 +58,8 @@ Critério de conclusão: testes confirmam acesso anônimo, resposta mínima sem 
 
 Comandos: `pnpm --filter @leads/api test` · `pnpm --filter @leads/api test:cov`
 
-- [ ] 7.1 Suite de testes negativos de segurança (configuração, validação, CORS, erros, rate limiting, headers, health)
-- [ ] 7.2 Testes de integração da superfície pública (supertest) com cenários de sucesso e de rejeição
+- [x] 7.1 Suite de testes negativos de segurança (configuração, validação, CORS, erros, rate limiting, headers, health)
+- [x] 7.2 Testes de integração da superfície pública (supertest) com cenários de sucesso e de rejeição
 
 Critério de conclusão: todos os cenários da spec possuem teste correspondente e a suíte roda verde.
 

@@ -1,7 +1,6 @@
 import 'reflect-metadata';
 
-import http from 'node:http';
-import type { IncomingHttpHeaders } from 'node:http';
+import { httpRequest } from './helpers';
 import { gzipSync } from 'node:zlib';
 
 import { Body, Controller, Get, HttpCode, Post, Req } from '@nestjs/common';
@@ -34,12 +33,6 @@ class ProbeController {
 interface TestServer {
   app: INestApplication;
   baseUrl: string;
-}
-
-interface HttpResponse {
-  status: number;
-  headers: IncomingHttpHeaders;
-  text: string;
 }
 
 interface ProbeResponse {
@@ -75,44 +68,6 @@ async function startServer(environment: Environment): Promise<TestServer> {
     throw new Error('Could not determine the listening port.');
   }
   return { app, baseUrl: `http://127.0.0.1:${address.port}` };
-}
-
-function httpRequest(
-  baseUrl: string,
-  method: string,
-  path: string,
-  options: { headers?: Record<string, string>; body?: string | Buffer } = {},
-): Promise<HttpResponse> {
-  return new Promise((resolve, reject) => {
-    const url = new URL(path, baseUrl);
-    const request = http.request(
-      {
-        hostname: url.hostname,
-        port: url.port,
-        path: `${url.pathname}${url.search}`,
-        method,
-        headers: options.headers,
-      },
-      (response) => {
-        const chunks: Buffer[] = [];
-        response.on('data', (chunk) => {
-          chunks.push(typeof chunk === 'string' ? Buffer.from(chunk) : chunk);
-        });
-        response.on('end', () => {
-          resolve({
-            status: response.statusCode ?? 0,
-            headers: response.headers,
-            text: Buffer.concat(chunks).toString('utf8'),
-          });
-        });
-      },
-    );
-    request.on('error', reject);
-    if (options.body !== undefined) {
-      request.write(options.body);
-    }
-    request.end();
-  });
 }
 
 describe('HTTP security bootstrap', () => {
@@ -266,6 +221,23 @@ describe('HTTP security bootstrap', () => {
       });
       expect(defaultPort.headers['access-control-allow-origin']).toBe(AUTHORIZED_ORIGIN);
     });
+
+    it('emits Vary: Origin for an authorized origin', async () => {
+      const server = await startServer(testEnvironment);
+      currentServer = server;
+      const response = await httpRequest(server.baseUrl, 'GET', '/probe', {
+        headers: { Origin: AUTHORIZED_ORIGIN },
+      });
+      expect(response.headers['vary']).toBe('Origin');
+    });
+
+    it('does not interfere with server-to-server clients without an Origin header', async () => {
+      const server = await startServer(testEnvironment);
+      currentServer = server;
+      const response = await httpRequest(server.baseUrl, 'GET', '/probe');
+      expect(response.status).toBe(200);
+      expect(response.headers['access-control-allow-origin']).toBeUndefined();
+    });
   });
 
   describe('payload limits', () => {
@@ -353,6 +325,20 @@ describe('HTTP security bootstrap', () => {
       const body = JSON.parse(response.text) as ProbeResponse;
       expect(body.query?.['filter[name]']).toBe('x');
       expect(body.query?.filter).toBeUndefined();
+    });
+
+    it('does not pollute Object.prototype via query keys', async () => {
+      const server = await startServer(testEnvironment);
+      currentServer = server;
+      const response = await httpRequest(
+        server.baseUrl,
+        'GET',
+        '/probe?__proto__[polluted]=yes&constructor[polluted]=yes&prototype[polluted]=yes',
+      );
+      expect(response.status).toBe(200);
+      const plain = {} as Record<string, unknown>;
+      expect(plain.polluted).toBeUndefined();
+      expect(Object.prototype.hasOwnProperty.call(Object.prototype, 'polluted')).toBe(false);
     });
 
     it('keeps trust proxy disabled so X-Forwarded-For is ignored', async () => {

@@ -1,14 +1,14 @@
 import 'reflect-metadata';
 
-import http from 'node:http';
-import type { IncomingHttpHeaders } from 'node:http';
+import { httpRequest } from './helpers';
 import { gzipSync } from 'node:zlib';
 
-import { Body, Controller, Get, HttpCode, NotFoundException, Post } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, NotFoundException, Post, Res } from '@nestjs/common';
 import type { INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import type { NestExpressApplication } from '@nestjs/platform-express';
 import { IsInt, IsNotEmpty, IsString, Min } from 'class-validator';
+import type { Response } from 'express';
 
 import { describe, afterEach, expect, it } from '@jest/globals';
 
@@ -45,6 +45,12 @@ class ItemsController {
   notFound(): never {
     throw new NotFoundException('custom not found message');
   }
+
+  @Get('partial')
+  partial(@Res() res: Response): void {
+    res.write('partial-body-sent');
+    throw new Error('error-after-headers-sent');
+  }
 }
 
 const testEnvironment = parseEnvironment({
@@ -56,12 +62,6 @@ const testEnvironment = parseEnvironment({
 interface TestServer {
   app: INestApplication;
   baseUrl: string;
-}
-
-interface HttpResponse {
-  status: number;
-  headers: IncomingHttpHeaders;
-  text: string;
 }
 
 interface ErrorEnvelope {
@@ -87,44 +87,6 @@ async function startServer(): Promise<TestServer> {
     throw new Error('Could not determine the listening port.');
   }
   return { app, baseUrl: `http://127.0.0.1:${address.port}` };
-}
-
-function httpRequest(
-  baseUrl: string,
-  method: string,
-  path: string,
-  options: { headers?: Record<string, string>; body?: string | Buffer } = {},
-): Promise<HttpResponse> {
-  return new Promise((resolve, reject) => {
-    const url = new URL(path, baseUrl);
-    const request = http.request(
-      {
-        hostname: url.hostname,
-        port: url.port,
-        path: `${url.pathname}${url.search}`,
-        method,
-        headers: options.headers,
-      },
-      (response) => {
-        const chunks: Buffer[] = [];
-        response.on('data', (chunk) => {
-          chunks.push(typeof chunk === 'string' ? Buffer.from(chunk) : chunk);
-        });
-        response.on('end', () => {
-          resolve({
-            status: response.statusCode ?? 0,
-            headers: response.headers,
-            text: Buffer.concat(chunks).toString('utf8'),
-          });
-        });
-      },
-    );
-    request.on('error', reject);
-    if (options.body !== undefined) {
-      request.write(options.body);
-    }
-    request.end();
-  });
 }
 
 function envelopeOf(text: string): ErrorEnvelope {
@@ -417,5 +379,63 @@ describe('error contract and request ID', () => {
       const envelope = envelopeOf(response.text);
       expect(response.headers['x-request-id']).toBe(envelope.requestId);
     }
+  });
+
+  describe('error responses keep the security headers', () => {
+    it('applies CSP, no X-Powered-By and no version headers to a 404', async () => {
+      const server = await startServer();
+      currentServer = server;
+      const response = await httpRequest(server.baseUrl, 'GET', '/missing');
+      expect(response.status).toBe(404);
+      expect(response.headers['content-security-policy']).toContain("default-src 'none'");
+      expect(response.headers['x-powered-by']).toBeUndefined();
+      expect(response.headers['strict-transport-security']).toBeUndefined();
+      for (const value of Object.values(response.headers)) {
+        expect(String(value)).not.toMatch(/express|node/i);
+      }
+    });
+
+    it('applies CSP, no X-Powered-By and no version headers to a 500', async () => {
+      const server = await startServer();
+      currentServer = server;
+      const response = await httpRequest(server.baseUrl, 'GET', '/items/boom');
+      expect(response.status).toBe(500);
+      expect(response.headers['content-security-policy']).toContain("default-src 'none'");
+      expect(response.headers['x-powered-by']).toBeUndefined();
+      for (const value of Object.values(response.headers)) {
+        expect(String(value)).not.toMatch(/express|node/i);
+      }
+    });
+  });
+
+  describe('prototype pollution resistance', () => {
+    it('does not pollute Object.prototype via a request body', async () => {
+      const server = await startServer();
+      currentServer = server;
+      const response = await httpRequest(server.baseUrl, 'POST', '/items', {
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: 'x',
+          count: 1,
+          __proto__: { polluted: 'yes' },
+          constructor: { polluted: 'yes' },
+          prototype: { polluted: 'yes' },
+        }),
+      });
+      expect(response.status).toBe(201);
+      const plain = {} as Record<string, unknown>;
+      expect(plain.polluted).toBeUndefined();
+      expect(Object.prototype.hasOwnProperty.call(Object.prototype, 'polluted')).toBe(false);
+    });
+  });
+
+  describe('headers already sent', () => {
+    it('does not write a duplicate response when headers were already sent', async () => {
+      const server = await startServer();
+      currentServer = server;
+      const response = await httpRequest(server.baseUrl, 'GET', '/items/partial');
+      expect(response.text).toBe('partial-body-sent');
+      expect(response.text).not.toContain('INTERNAL_SERVER_ERROR');
+    });
   });
 });

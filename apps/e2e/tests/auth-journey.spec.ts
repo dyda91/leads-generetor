@@ -21,12 +21,12 @@ const NEW_PASSWORD = `${NEW_PASSWORD_PREFIX}${randomBytes(8).toString('base64url
  * logout, so no session is ever revoked by another test.
  *
  * Login budget of this suite (all below 10/min on a single IP):
- * - journey step 1: 1 valid login (covers "valid credentials authenticate",
- *   "password never in URL" and "destination restore");
- * - journey step "old password invalid": 1 invalid login;
+ * - journey step "login": 1 valid login (covers "valid credentials
+ *   authenticate", "password never in URL" and "destination restore");
  * - journey step "new password valid": 1 valid login;
+ * - journey step "old password invalid": 1 invalid login;
  * - login.spec: 2 invalid logins.
- * Total POST /auth/login = 5 (3 valid, 2 invalid); change-password = 1. The
+ * Total POST /auth/login = 5 (2 valid, 3 invalid); change-password = 1. The
  * two local validation blocks never call the API.
  */
 test.describe('Fluxo autenticado (jornada serial)', () => {

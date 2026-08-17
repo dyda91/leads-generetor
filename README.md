@@ -2,12 +2,12 @@
 
 Sistema de geração de leads empresariais: busca de empresas por segmento e localização (via Google Places API, somente pelo backend), organização de leads, listas de prospecção, exportação em CSV/XLSX e auditoria de ações sensíveis.
 
-> Status: fundação + shell de API NestJS seguro com **autenticação do administrador único** (sessão opaca por cookie, Argon2id, CSRF, CORS com credenciais, rate limit reforçado) sobre PostgreSQL. Recursos de negócio serão adicionados em mudanças planejadas via OpenSpec. Superfície pública e limites: [`docs/architecture/api.md`](docs/architecture/api.md).
+> Status: fundação + shell de API NestJS seguro com **autenticação do administrador único** (sessão opaca por cookie, Argon2id, CSRF, CORS com credenciais, rate limit reforçado) + **frontend React** (login, restauração de sessão, dashboard em estado vazio, troca de senha, logout, layout responsivo) sobre PostgreSQL. Recursos de negócio serão adicionados em mudanças planejadas via OpenSpec. Superfícies e limites: [`docs/architecture/api.md`](docs/architecture/api.md) e [`docs/architecture/web.md`](docs/architecture/web.md).
 
 ## Stack
 
 - Monorepo: pnpm workspaces
-- Frontend: React + TypeScript + Vite + Tailwind CSS + shadcn/ui
+- Frontend: React 19 + TypeScript + Vite + Tailwind CSS (design system próprio)
 - Backend: NestJS + TypeScript (estrito) + Prisma + PostgreSQL
 - Testes: Vitest (web), Jest (api), Playwright (e2e)
 - Qualidade: ESLint, Prettier, lint-staged, husky
@@ -121,7 +121,7 @@ DATABASE_URL_TEST=postgresql://…@127.0.0.1:5434/leads_test \
 
 O `playwright.config.ts` inicia a API (loopback, porta 3100) e o frontend (loopback, porta 5174), aplica as migrations (idempotente) e seeda um único administrador no banco de teste via helper em processo (nunca o CLI interativo). Credenciais E2E são geradas em runtime com CSPRNG e mantidas **somente em memória** por uma fixture worker-scoped tipada — nunca gravadas em arquivo, storageState, argv, stdout, relatório ou attachment; a senha chega ao seed apenas pelo ambiente controlado do subprocesso. Portas exclusivas: API `3100`, web `5174`; CORS exato `http://127.0.0.1:5174`.
 
-Como a aplicação permite uma única sessão ativa por administrador e aplica rate limit estrito (10/min por IP em login/troca de senha), os fluxos autenticados rodam em uma **jornada serial explícita** (um teste com `test.step` em ordem de dependência): login → dashboard → layout → drawer mobile → responsividade → restauração/cookie → troca de senha → senha antiga inválida → logout → senha nova válida. Testes públicos (proteção, 404, erros de login) continuam independentes. Orçamento de login da suíte: 5 chamadas `POST /auth/login` (3 válidas, 2 inválidas) + 1 troca de senha — abaixo do limite de 10/min. Artefatos de falha (como `error-context.md`, gerado automaticamente pelo Playwright) são escritos em um diretório temporário privado fora do repositório; um redator compara o conteúdo contra as credenciais em memória e o teardown remove o diretório ao final (sucesso ou falha normal), sem deixar valores sensíveis.
+Como a aplicação permite uma única sessão ativa por administrador e aplica rate limit estrito (10/min por IP em login/troca de senha), os fluxos autenticados rodam em uma **jornada serial explícita** (um teste com `test.step` em ordem de dependência): login → dashboard → layout → drawer mobile → responsividade → restauração/cookie → troca de senha → senha antiga inválida → logout → senha nova válida. Testes públicos (proteção, 404, erros de login) continuam independentes. Orçamento de login da suíte: 5 chamadas `POST /auth/login` (2 válidas, 3 inválidas) + 1 troca de senha — abaixo do limite de 10/min. Artefatos de falha (como `error-context.md`, gerado automaticamente pelo Playwright) são escritos em um diretório temporário privado fora do repositório; um redator compara o conteúdo contra as credenciais em memória e o teardown remove o diretório ao final (sucesso ou falha normal), sem deixar valores sensíveis.
 
 ## Comandos
 
@@ -149,5 +149,6 @@ Como a aplicação permite uma única sessão ativa por administrador e aplica r
 - **Detecção de segredos (secretlint):** `pnpm check:secrets` varre arquivos versionados/staged; o pre-commit também verifica os staged. Nenhuma ferramenta garante detecção total — revisão humana adicional é recomendada.
 - O PostgreSQL de desenvolvimento expõe a porta somente em loopback (`127.0.0.1:5433` no host → `5432` no container); em produção nenhuma porta do banco é publicada.
 - **Autenticação:** sessão opaca única por cookie (`HttpOnly`/`SameSite=Strict`, nome por ambiente), senha Argon2id, CSRF synchronizer token, CORS com credenciais apenas para origens exatas, **`Origin` obrigatória nas mutações de autenticação**, anti-enumeração temporal (exatamente uma verificação Argon2 por tentativa, com hash dummy para inexistente/inativo) e rate limit reforçado em login/troca de senha. Sem credencial padrão — o primeiro admin é criado pelo `bootstrap-admin` interativo. Detalhes e decisões: [`docs/architecture/api.md`](docs/architecture/api.md) e [`docs/decisions/ADR-0006-session-authentication.md`](docs/decisions/ADR-0006-session-authentication.md).
+- **Frontend:** sessão em cookie `HttpOnly` intocado por JavaScript; CSRF somente em memória; sem tokens em storage/URL/logs; sem `dangerouslySetInnerHTML`/`eval`; source maps desabilitados; destino pós-login por allowlist; o frontend **não é fronteira de autorização**. Detalhes em [`docs/architecture/web.md`](docs/architecture/web.md).
 
 Detalhes: `docs/architecture/` e `docs/security/`.

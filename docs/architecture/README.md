@@ -12,27 +12,28 @@ Sistema web para gerar e gerenciar leads empresariais: busca de empresas por seg
 
 - Monorepo pnpm workspaces (apps/web, apps/api, apps/e2e, packages/contracts, packages/eslint-config, packages/typescript-config, infrastructure, docs, scripts, openspec).
 - TypeScript estrito compartilhado; ESLint flat (base/React/Node); Prettier.
-- Qualidade: Husky + lint-staged (pre-commit), Playwright config base (sem testes), gates `pnpm check`.
+- Qualidade: Husky + lint-staged (pre-commit), Playwright config, gates `pnpm check`.
 - Segredos: `.env.example` por app/infra; detecção de segredos via `scripts/check-secrets` (secretlint).
 - Desenvolvimento local: PostgreSQL em container via `infrastructure/docker-compose.dev.yml`.
-- **API (shell NestJS seguro de runtime):** fail-fast de configuração, `GET /health` mínimo, headers Helmet/CSP/HSTS, CORS por allowlist, limites de corpo, ValidationPipe, contrato de erros centralizado, request ID server-generated, rate limit global e shutdown ordenado. Detalhes da superfície pública e limites em [`docs/architecture/api.md`](api.md). **Ainda não há** autenticação, banco (Prisma/PostgreSQL), Google Places, leads ou frontend conectado.
+- **API (shell NestJS seguro de runtime):** fail-fast de configuração, `GET /health` mínimo, headers Helmet/CSP/HSTS, CORS por allowlist, limites de corpo, ValidationPipe, contrato de erros centralizado, request ID server-generated, rate limit global e shutdown ordenado. Autenticação do administrador único (sessão opaca por cookie, Argon2id, CSRF, sessão única, anti-enumeração). Detalhes da superfície pública e limites em [`docs/architecture/api.md`](api.md). **Não há** Google Places, leads ou frontend nesta fase inicial — o frontend foi adicionado por `visual-foundation-and-layout`.
+- **Frontend (`apps/web`):** React 19 + Vite 7 + TypeScript estrito + Tailwind + design system próprio; cliente de API tipado (fetch + Zod), autenticação em memória (cookie HttpOnly, CSRF em memória), rotas públicas/protegidas com guard, login, dashboard em estado vazio, troca de senha, logout, layout desktop/mobile acessível. Detalhes em [`docs/architecture/web.md`](web.md).
 
-**Planejado (mudanças futuras):** web (React + Vite + Tailwind + shadcn/ui), persistência com Prisma + PostgreSQL, autenticação e autorização, busca Google Places, gestão de leads, listas e pipeline, exportação, auditoria/observabilidade, hardening de produção e CI.
+**Planejado (mudanças futuras):** busca Google Places (`places-search`), gestão de leads, listas e pipeline, exportação, auditoria/observabilidade, hardening de produção e CI.
 
 ## Monorepo — responsabilidade de cada workspace
 
-| Workspace                    | Responsabilidade                                                                                       |
-| ---------------------------- | ------------------------------------------------------------------------------------------------------ |
-| `apps/web`                   | Frontend (React + Vite). Nunca acessa Google Places; nunca recebe segredos.                            |
-| `apps/api`                   | Backend (NestJS). Único componente que acessa Google Places e o banco.                                 |
-| `apps/e2e`                   | Testes end-to-end (Playwright). Config base criada; testes serão adicionados junto às funcionalidades. |
-| `packages/contracts`         | Contratos compartilhados entre API e web (tipos/DTOs).                                                 |
-| `packages/eslint-config`     | Configurações ESLint compartilhadas (base/React/Node).                                                 |
-| `packages/typescript-config` | Configurações TypeScript estritas compartilhadas (base/web/api).                                       |
-| `infrastructure`             | Docker Compose de desenvolvimento (PostgreSQL).                                                        |
-| `docs`                       | Arquitetura, segurança e decisões (ADRs).                                                              |
-| `scripts`                    | Utilitários de verificação (workspaces, segredos).                                                     |
-| `openspec`                   | Especificações e mudanças (Spec-Driven Development).                                                   |
+| Workspace                    | Responsabilidade                                                                          |
+| ---------------------------- | ----------------------------------------------------------------------------------------- |
+| `apps/web`                   | Frontend (React + Vite). Nunca acessa Google Places; nunca recebe segredos.               |
+| `apps/api`                   | Backend (NestJS). Único componente que acessa Google Places e o banco.                    |
+| `apps/e2e`                   | Testes end-to-end (Playwright) contra a API e o frontend reais no banco de teste isolado. |
+| `packages/contracts`         | Contratos compartilhados entre API e web (tipos/DTOs).                                    |
+| `packages/eslint-config`     | Configurações ESLint compartilhadas (base/React/Node).                                    |
+| `packages/typescript-config` | Configurações TypeScript estritas compartilhadas (base/web/api).                          |
+| `infrastructure`             | Docker Compose de desenvolvimento (PostgreSQL).                                           |
+| `docs`                       | Arquitetura, segurança e decisões (ADRs).                                                 |
+| `scripts`                    | Utilitários de verificação (workspaces, segredos).                                        |
+| `openspec`                   | Especificações e mudanças (Spec-Driven Development).                                      |
 
 ## Limites de responsabilidade
 

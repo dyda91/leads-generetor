@@ -45,28 +45,33 @@ Ameaças consideradas nesta fase:
 
 ## Controles por ameaça e mapa de mudanças
 
-| Controle                                                                                                                      | Status       | Mudança prevista                              |
-| ----------------------------------------------------------------------------------------------------------------------------- | ------------ | --------------------------------------------- |
-| Segredos nunca versionados; `.env.example` com placeholders                                                                   | Implementado | `project-foundation` (secretlint, pre-commit) |
-| PostgreSQL não exposto publicamente; loopback                                                                                 | Implementado | `project-foundation` (compose dev)            |
-| Google Places — chave ausente do frontend (nível de repositório)                                                              | Implementado | `project-foundation`                          |
-| Google Places — chamadas/respostas runtime backend-only                                                                       | Planejado    | `places-search`                               |
-| Validação fail-fast de configuração (runtime)                                                                                 | Implementado | `security-foundation`                         |
-| Health check público mínimo (runtime)                                                                                         | Implementado | `security-foundation`                         |
-| Logs estruturados e sanitizados (runtime)                                                                                     | Planejado    | `audit-and-observability`                     |
-| Autenticação e autorização (Argon2id, sessão opaca única, cookies, CSRF, bloqueio de brute force, revogação, anti-enumeração) | Implementado | `authentication-and-authorization`            |
-| Rate limiting global (runtime)                                                                                                | Implementado | `security-foundation`                         |
-| Rate limiting reforçado (login, troca de senha)                                                                               | Implementado | `authentication-and-authorization`            |
-| Validação de entrada e rejeição de propriedades desconhecidas                                                                 | Implementado | `security-foundation`                         |
-| Erros centralizados sem detalhes internos                                                                                     | Implementado | `security-foundation`                         |
-| Proteção contra IDOR (propriedade/permissão em todo recurso)                                                                  | Planejado    | `lead-management`, `lead-lists-and-pipeline`  |
-| CSP restritiva da API (API sem HTML)                                                                                          | Implementado | `security-foundation`                         |
-| Proteção contra XSS (frontend)                                                                                                | Planejado    | `visual-foundation-and-layout`                |
-| Proteção contra SSRF e chamadas externas seguras (timeout, redirecionamentos, validação de URL)                               | Planejado    | `places-search`                               |
-| SQL injection (consultas parametrizadas)                                                                                      | Planejado    | API/domínio (quando o banco existir)          |
-| Abuso de API — paginação e limites por recurso                                                                                | Planejado    | API/domínio                                   |
-| Auditoria de ações sensíveis                                                                                                  | Planejado    | `audit-and-observability`                     |
-| Hardening de produção (containers não-root, imagens fixadas, .env validado)                                                   | Planejado    | `production-hardening-and-deployment`         |
+| Controle                                                                                                                      | Status       | Mudança prevista                                 |
+| ----------------------------------------------------------------------------------------------------------------------------- | ------------ | ------------------------------------------------ |
+| Segredos nunca versionados; `.env.example` com placeholders                                                                   | Implementado | `project-foundation` (secretlint, pre-commit)    |
+| PostgreSQL não exposto publicamente; loopback                                                                                 | Implementado | `project-foundation` (compose dev)               |
+| Google Places — chave ausente do frontend (nível de repositório)                                                              | Implementado | `project-foundation`                             |
+| Google Places — chamadas/respostas runtime backend-only                                                                       | Planejado    | `places-search`                                  |
+| Validação fail-fast de configuração (runtime)                                                                                 | Implementado | `security-foundation`                            |
+| Health check público mínimo (runtime)                                                                                         | Implementado | `security-foundation`                            |
+| Logs estruturados e sanitizados (runtime)                                                                                     | Planejado    | `audit-and-observability`                        |
+| Autenticação e autorização (Argon2id, sessão opaca única, cookies, CSRF, bloqueio de brute force, revogação, anti-enumeração) | Implementado | `authentication-and-authorization`               |
+| Rate limiting global (runtime)                                                                                                | Implementado | `security-foundation`                            |
+| Rate limiting reforçado (login, troca de senha)                                                                               | Implementado | `authentication-and-authorization`               |
+| Validação de entrada e rejeição de propriedades desconhecidas                                                                 | Implementado | `security-foundation`                            |
+| Erros centralizados sem detalhes internos                                                                                     | Implementado | `security-foundation`                            |
+| Proteção contra IDOR (propriedade/permissão em todo recurso)                                                                  | Planejado    | `lead-management`, `lead-lists-and-pipeline`     |
+| CSP restritiva da API (API sem HTML)                                                                                          | Implementado | `security-foundation`                            |
+| Frontend sem `dangerouslySetInnerHTML`/`eval`/interpolação de HTML externo (XSS)                                              | Implementado | `visual-foundation-and-layout`                   |
+| Frontend sem tokens/CSRF/senha em storage, logs, URL ou query; cookie HttpOnly não lido por JS                                | Implementado | `visual-foundation-and-layout`                   |
+| Sem segredos em variáveis `VITE_*`; `VITE_API_BASE_URL` pública e sem credenciais                                             | Implementado | `app-foundation`, `visual-foundation-and-layout` |
+| Sem open redirect pós-login (allowlist de destinos internos)                                                                  | Implementado | `visual-foundation-and-layout`                   |
+| Respostas da API validadas em runtime e erros controlados no frontend                                                         | Implementado | `visual-foundation-and-layout`                   |
+| Source maps desabilitados no build; sem assets/fontes externos                                                                | Implementado | `visual-foundation-and-layout`                   |
+| Proteção contra SSRF e chamadas externas seguras (timeout, redirecionamentos, validação de URL)                               | Planejado    | `places-search`                                  |
+| SQL injection (consultas parametrizadas)                                                                                      | Planejado    | API/domínio (quando o banco existir)             |
+| Abuso de API — paginação e limites por recurso                                                                                | Planejado    | API/domínio                                      |
+| Auditoria de ações sensíveis                                                                                                  | Planejado    | `audit-and-observability`                        |
+| Hardening de produção (containers não-root, imagens fixadas, .env validado)                                                   | Planejado    | `production-hardening-and-deployment`            |
 
 A superfície pública da API, o contrato de erros e os controles ativos estão detalhados em [`docs/architecture/api.md`](../architecture/api.md).
 
@@ -106,6 +111,21 @@ Todas as respostas de erro seguem um envelope único: `{ requestId, statusCode, 
 - **Rotação determinística em `/me`:** como o banco guarda apenas o hash, `/me` rotaciona com compare-and-set sobre o hash observado na validação; sob chamadas concorrentes, exatamente uma retorna 200 com token e a perdedora retorna 409 (`CONFLICT`) sem token; o token antigo permanece inválido.
 - **Origem obrigatória nas mutações:** `login`, `logout` e `change-password` exigem uma `Origin` exata autorizada (ausente, `null`, malformada, semelhante ou fora da allowlist → 403); um `Referer` presente deve concordar e **nunca substitui** uma `Origin` ausente; `Host` não é confiado. `GET /auth/me` e `GET /health` (leitura) continuam sem `Origin`.
 - **CORS:** `credentials: true` e headers `Content-Type`/`X-CSRF-Token` somente para origens exatas autorizadas; wildcard jamais combinado com credenciais; uma origem maliciosa não lê o token via CORS.
+
+## Segurança do frontend
+
+O frontend (`apps/web`) consome o contrato de autenticação mas **não é uma fronteira de autorização**:
+
+- Esconder menu/botão no frontend **não substitui** a autorização do backend; a proteção efetiva está na API.
+- O cookie de sessão é `HttpOnly` e **não é lido por JavaScript**; o CSRF fica **somente em memória** e é enviado apenas nas mutações protegidas (`X-CSRF-Token`).
+- `credentials: include` em toda chamada; o backend exige **`Origin` exata** nas mutações e o `SameSite=Strict` **não é a única** proteção CSRF.
+- **`CORS` restringe navegadores, mas não autentica clientes**; CORS não substitui rate limit nem autenticação.
+- **Sem JWT/Bearer** e sem `localStorage`/`sessionStorage` para token, sessão, CSRF ou senha; nenhum token vai para URL, query ou logs.
+- Destino pós-login por **allowlist** de paths internos (sem open redirect); respostas da API **validadas em runtime** (Zod) e erros controlados (sem stack/corpo bruto).
+- **Source maps desabilitados** no build; sem assets/fontes externos; sem `dangerouslySetInnerHTML`/`eval`.
+- A **CSP restritiva do backend** (`default-src 'none'; frame-ancestors 'none'; base-uri 'none'`) permanece ativa; a CSP de produção do frontend é tratada no deploy (`production-hardening-and-deployment`).
+- Rate limiting (incluindo o reforço de 10/min em login/troca de senha) e **sessão única** continuam no **backend**.
+- Detalhes em [`docs/architecture/web.md`](../architecture/web.md).
 
 ## Lifecycle
 

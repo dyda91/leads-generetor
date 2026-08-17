@@ -123,8 +123,8 @@ Critério de conclusão: E2E verdes no `postgres-test` com a API rodando; nenhum
 
 Comandos: revisão manual de `README.md` e `docs/architecture/api.md`
 
-- [ ] 12.1 Documentar a superfície web (rotas, autenticação por cookie, CSRF em memória, sessão única, troca de senha, logout) e os comandos de desenvolvimento/testes (API + web + E2E no banco de teste)
-- [ ] 12.2 Documentar a direção visual (tokens) e a estratégia de autenticação/CSRF no frontend, sem afirmar controles futuros como ativos
+- [x] 12.1 Documentar a superfície web (rotas, autenticação por cookie, CSRF em memória, sessão única, troca de senha, logout) e os comandos de desenvolvimento/testes (API + web + E2E no banco de teste)
+- [x] 12.2 Documentar a direção visual (tokens) e a estratégia de autenticação/CSRF no frontend, sem afirmar controles futuros como ativos
 
 Critério de conclusão: documentação consistente com spec/design e sem segredos.
 

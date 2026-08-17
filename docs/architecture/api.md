@@ -1,6 +1,6 @@
 # API — Superfície pública, controles e limites
 
-> **Estado:** implementado (shell seguro + autenticação do administrador único). Leads, Google Places, frontend, auditoria e deploy **não estão implementados** nesta fase.
+> **Estado:** implementado (shell seguro + autenticação do administrador único + frontend React consumindo o contrato). Leads, Google Places (runtime), auditoria e deploy **não estão implementados** nesta fase.
 
 ## Superfície pública atual
 
@@ -143,7 +143,6 @@ A aplicação **não carrega** um arquivo `.env` automaticamente; os valores sã
 | Sem configuração de proxy/TLS dentro do processo | `production-hardening-and-deployment` |
 | Sem deploy/CI                                    | `production-hardening-and-deployment` |
 | Sem readiness detalhada                          | futura, se necessária                 |
-| Sem frontend                                     | `visual-foundation-and-layout`        |
 
 ## Segurança e operação local
 

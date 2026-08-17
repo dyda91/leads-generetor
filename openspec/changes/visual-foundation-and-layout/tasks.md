@@ -113,11 +113,11 @@ Critério de conclusão: suíte web verde cobrindo os cenários da spec; nenhum 
 
 Comandos: `docker compose -f infrastructure/docker-compose.dev.yml up -d postgres-test` · `pnpm --filter @leads/web build` · `pnpm --filter @leads/e2e test`
 
-- [ ] 11.1 Seed seguro do administrador para E2E via helper (serviço de bootstrap em processo), nunca o CLI interativo; banco de teste isolado (5434); nunca tocar 5433
-- [ ] 11.2 Fluxos E2E: login; reload preserva sessão (cookie); `/me` recupera CSRF; rota protegida; logout; troca de senha (senha anterior deixa de funcionar); sessão expirada
-- [ ] 11.3 E2E sem token em `localStorage`/`sessionStorage` e sem segredos em screenshots/traces
+- [x] 11.1 Seed seguro do administrador para E2E via helper (serviço de bootstrap em processo), nunca o CLI interativo; banco de teste isolado (5434); nunca tocar 5433
+- [x] 11.2 Fluxos E2E: login; reload preserva sessão (cookie); `/me` recupera CSRF; rota protegida; logout; troca de senha (senha anterior deixa de funcionar); sessão expirada
+- [x] 11.3 E2E sem token em `localStorage`/`sessionStorage` e sem segredos em screenshots/traces
 
-Critério de conclusão: E2E verdes no `postgres-test` com a API rodando; nenhum segredo/token persistido ou capturado.
+Critério de conclusão: E2E verdes no `postgres-test` com a API rodando; nenhum segredo/token persistido ou capturado. **Resultado:** 11/11 testes cobrindo os 42 cenários originais (matriz revisada).
 
 ## 12. Documentação
 

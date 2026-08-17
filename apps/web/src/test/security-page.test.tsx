@@ -114,6 +114,24 @@ describe('SecurityPage — structure, accessibility and policy (Grupo 9)', () =>
     expect(screen.getByLabelText('Confirme a nova senha')).toHaveAttribute('type', 'password');
   });
 
+  it('toggles each field independently without cross-leaking visibility', async () => {
+    renderPage(createFakeClient());
+    await screen.findByRole('heading', { name: 'Segurança da conta' });
+    fireEvent.click(screen.getByRole('button', { name: 'Mostrar senha atual' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Mostrar confirmação' }));
+    expect(screen.getByLabelText('Senha atual')).toHaveAttribute('type', 'text');
+    expect(screen.getByLabelText('Confirme a nova senha')).toHaveAttribute('type', 'text');
+    expect(screen.getByLabelText('Nova senha')).toHaveAttribute('type', 'password');
+    expect(screen.getByRole('button', { name: 'Ocultar senha atual' })).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    );
+    expect(screen.getByRole('button', { name: 'Ocultar confirmação' })).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    );
+  });
+
   it('shows clear password requirements and no misleading strength estimate', async () => {
     renderPage(createFakeClient());
     await screen.findByRole('heading', { name: 'Segurança da conta' });
@@ -323,6 +341,25 @@ describe('SecurityPage — controlled error handling (Grupo 9)', () => {
     expect(message).not.toContain('stack');
     expect(message).not.toMatch(/at .*\(/);
     expect(document.body.textContent ?? '').not.toContain('c'.repeat(64));
+  });
+
+  it('maps an unexpected status to a generic message', async () => {
+    const message = await submitAndReadError(
+      createFakeClient(),
+      ApiError.http(418, { message: 'unknown' }),
+    );
+    expect(message).toBe('Não foi possível alterar a senha. Tente novamente.');
+  });
+
+  it('maps a non-ApiError to a generic message without leaking it', async () => {
+    const message = await submitAndReadError(createFakeClient(), new Error('internal boom'));
+    expect(message).toBe('Ocorreu um erro inesperado. Tente novamente.');
+    expect(message).not.toContain('internal boom');
+  });
+
+  it('maps an ApiError of a non-HTTP kind to a generic message', async () => {
+    const message = await submitAndReadError(createFakeClient(), ApiError.invalidResponse());
+    expect(message).toBe('Ocorreu um erro inesperado. Tente novamente.');
   });
 
   it('keeps the session valid after a failed change-password (no partial update)', async () => {

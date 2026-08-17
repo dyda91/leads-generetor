@@ -103,9 +103,9 @@ Critério de conclusão: testes de troca de senha e logout (sucesso, falha de re
 
 Comandos: `pnpm --filter @leads/web test`
 
-- [ ] 10.1 Testes do API client (credentials include, CSRF só em mutações, timeout, parsing defensivo, 401/403/429/500)
-- [ ] 10.2 Testes do estado de autenticação (sessão inicial, single-flight, 409 concorrente, retry limitado, nenhuma persistência de token)
-- [ ] 10.3 Testes de login, ProtectedRoute, open redirect, layout desktop/mobile, menu e foco, 404, acessibilidade básica
+- [x] 10.1 Testes do API client (credentials include, CSRF só em mutações, timeout, parsing defensivo, 401/403/429/500)
+- [x] 10.2 Testes do estado de autenticação (sessão inicial, single-flight, 409 concorrente, retry limitado, nenhuma persistência de token)
+- [x] 10.3 Testes de login, ProtectedRoute, open redirect, layout desktop/mobile, menu e foco, 404, acessibilidade básica
 
 Critério de conclusão: suíte web verde cobrindo os cenários da spec; nenhum cenário normativo sem teste correspondente.
 

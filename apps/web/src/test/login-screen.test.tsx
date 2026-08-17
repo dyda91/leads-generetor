@@ -186,6 +186,26 @@ describe('LoginScreen — submission', () => {
     expect(screen.getByText('Informe a senha.')).toBeInTheDocument();
   });
 
+  it('rejects an over-long e-mail without calling login', () => {
+    const client = createFakeClient();
+    renderLogin(client);
+    fillForm(`${'a'.repeat(255)}@example.com`, VALID_PASSWORD);
+    submitForm();
+    expect(client.login).not.toHaveBeenCalled();
+    expect(screen.getByText('O e-mail é muito longo.')).toBeInTheDocument();
+    expect(screen.getByLabelText('E-mail')).toHaveAttribute('aria-invalid', 'true');
+  });
+
+  it('focuses the password field when only the password is invalid', () => {
+    const client = createFakeClient();
+    renderLogin(client);
+    fillForm(VALID_EMAIL, '');
+    submitForm();
+    expect(client.login).not.toHaveBeenCalled();
+    expect(document.activeElement).toBe(screen.getByLabelText('Senha'));
+    expect(screen.queryByText('Informe o e-mail.')).toBeNull();
+  });
+
   it('rejects an invalid e-mail without calling login', () => {
     const client = createFakeClient();
     renderLogin(client);
@@ -272,6 +292,25 @@ describe('LoginScreen — controlled error handling', () => {
     expect(message).not.toContain('stack');
     expect(message).not.toMatch(/at .*\(/);
     expect(message).not.toContain('requestId');
+  });
+
+  it('maps an unexpected status to a generic message', async () => {
+    const message = await submitAndReadError(
+      createFakeClient(),
+      ApiError.http(418, { message: 'unknown' }),
+    );
+    expect(message).toBe('Não foi possível entrar. Tente novamente.');
+  });
+
+  it('maps a non-ApiError to a generic message without leaking it', async () => {
+    const message = await submitAndReadError(createFakeClient(), new Error('internal boom'));
+    expect(message).toBe('Ocorreu um erro inesperado. Tente novamente.');
+    expect(message).not.toContain('internal boom');
+  });
+
+  it('maps an ApiError of a non-HTTP kind to a generic message', async () => {
+    const message = await submitAndReadError(createFakeClient(), ApiError.invalidResponse());
+    expect(message).toBe('Ocorreu um erro inesperado. Tente novamente.');
   });
 });
 

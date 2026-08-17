@@ -245,6 +245,72 @@ describe('ApiClient — responses', () => {
       return true;
     });
   });
+
+  it('falls back to a controlled generic error for a non-JSON error body', async () => {
+    const response = new Response('Internal Server Error', {
+      status: 500,
+      headers: { 'Content-Type': 'text/plain' },
+    });
+    const client = makeClient(vi.fn().mockResolvedValue(response));
+    await expect(client.getCurrentSession()).rejects.toSatisfy((error: unknown) => {
+      expect(error).toBeInstanceOf(ApiError);
+      const apiError = error as ApiError;
+      expect(apiError.kind).toBe('http');
+      expect(apiError.status).toBe(500);
+      expect(apiError.message).not.toContain('Internal Server Error');
+      expect(apiError.requestId).toBeUndefined();
+      return true;
+    });
+  });
+
+  it('falls back to a controlled generic error for an unparsable error body', async () => {
+    const response = new Response('{broken', {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' },
+    });
+    const client = makeClient(vi.fn().mockResolvedValue(response));
+    await expect(client.getCurrentSession()).rejects.toSatisfy((error: unknown) => {
+      expect(error).toBeInstanceOf(ApiError);
+      expect((error as ApiError).kind).toBe('http');
+      expect((error as ApiError).message).not.toContain('{broken');
+      return true;
+    });
+  });
+
+  it('falls back to a controlled generic error when the envelope is malformed', async () => {
+    const response = jsonResponse({ requestId: 'req-9', weird: true }, 403);
+    const client = makeClient(vi.fn().mockResolvedValue(response));
+    await expect(client.getCurrentSession()).rejects.toSatisfy((error: unknown) => {
+      expect(error).toBeInstanceOf(ApiError);
+      const apiError = error as ApiError;
+      expect(apiError.kind).toBe('http');
+      expect(apiError.status).toBe(403);
+      expect(apiError.requestId).toBeUndefined();
+      return true;
+    });
+  });
+
+  it('rejects a logout response that is not 204 with a non-empty body', async () => {
+    const response = new Response('oops', {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' },
+    });
+    const client = makeClient(vi.fn().mockResolvedValue(response));
+    await expect(client.logout(CSRF)).rejects.toSatisfy((error: unknown) => {
+      expect(error).toBeInstanceOf(ApiError);
+      expect((error as ApiError).kind).toBe('invalid-response');
+      return true;
+    });
+  });
+
+  it('resolves a logout response that is not 204 but carries an empty body', async () => {
+    const response = new Response('', {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' },
+    });
+    const client = makeClient(vi.fn().mockResolvedValue(response));
+    await expect(client.logout(CSRF)).resolves.toBeUndefined();
+  });
 });
 
 describe('ApiClient — timeout and cancellation', () => {
@@ -257,6 +323,10 @@ describe('ApiClient — timeout and cancellation', () => {
     return vi.fn(
       (_url: string, init: RequestInit) =>
         new Promise<Response>((_resolve, reject) => {
+          if (init.signal?.aborted === true) {
+            reject(new DOMException('The operation was aborted.', 'AbortError'));
+            return;
+          }
           init.signal?.addEventListener('abort', () => {
             reject(new DOMException('The operation was aborted.', 'AbortError'));
           });
@@ -290,6 +360,20 @@ describe('ApiClient — timeout and cancellation', () => {
       expect((error as ApiError).kind).toBe('cancelled');
       return true;
     });
+  });
+
+  it('treats an already-aborted external signal as a cancellation', async () => {
+    const fetchImpl = signalAwareFetch();
+    const client = makeClient(fetchImpl, 60_000);
+    const controller = new AbortController();
+    controller.abort();
+
+    await expect(client.getCurrentSession(controller.signal)).rejects.toSatisfy(
+      (error: unknown) => {
+        expect((error as ApiError).kind).toBe('cancelled');
+        return true;
+      },
+    );
   });
 
   it('clears the timer after a successful request', async () => {

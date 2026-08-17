@@ -204,6 +204,20 @@ describe('navigation (Grupo 6 — protected routes and safe post-login destinati
     expect(screen.queryByRole('heading', { name: 'Segurança da conta' })).toBeNull();
   });
 
+  it('shows the recoverable error with retry on /login instead of the form', async () => {
+    renderApp({
+      client: createFakeClient({
+        getCurrentSession: async () => {
+          throw ApiError.network();
+        },
+      }),
+      initialEntries: ['/login'],
+    });
+    expect(await screen.findByRole('alert')).toHaveTextContent('Não foi possível conectar');
+    expect(screen.getByRole('button', { name: 'Tentar novamente' })).toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: 'Acesse sua conta' })).toBeNull();
+  });
+
   it('retries session restore from the recoverable error', async () => {
     const client = renderApp({
       client: createFakeClient({
@@ -268,6 +282,7 @@ describe('navigation (Grupo 6 — protected routes and safe post-login destinati
     ['unknown path', '/admin/delete'],
     ['tampered from value', { from: 42 }],
     ['empty from value', { from: '' }],
+    ['control characters', '/settings/security\n\u0000'],
   ] as const)(
     'rejects a malicious post-login destination (%s) and lands on /',
     async (_label, from) => {

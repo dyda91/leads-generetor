@@ -115,6 +115,58 @@ describe('AuthProvider — restoration', () => {
     expect(client.getCurrentSession).toHaveBeenCalledTimes(2);
   });
 
+  it('discards a 409 retry that resolves after a newer login', async () => {
+    const client = createFakeClient();
+    let resolveRetry!: (v: { user: AuthUser; csrfToken: string }) => void;
+    client.getCurrentSession.mockRejectedValueOnce(httpError(409)).mockReturnValueOnce(
+      new Promise((resolve) => {
+        resolveRetry = resolve;
+      }),
+    );
+    client.login.mockResolvedValue(session(USER_B, CSRF_2));
+    renderAuth(client);
+
+    // Let the 409 retry reach its pending state before any newer operation.
+    await waitFor(() => expect(client.getCurrentSession).toHaveBeenCalledTimes(2));
+
+    await act(async () => {
+      await captured?.login(LOGIN_INPUT);
+    });
+    expect(authenticatedUser().email).toBe('b@example.com');
+
+    await act(async () => {
+      resolveRetry(session(USER_A, CSRF_1));
+    });
+    // The stale 409 retry must not overwrite the newer authenticated session.
+    expect(authenticatedUser().email).toBe('b@example.com');
+  });
+
+  it('ignores a stale 409 retry failure that arrives after a newer login', async () => {
+    const client = createFakeClient();
+    let rejectRetry!: (v: unknown) => void;
+    client.getCurrentSession.mockRejectedValueOnce(httpError(409)).mockReturnValueOnce(
+      new Promise((_resolve, reject) => {
+        rejectRetry = reject;
+      }),
+    );
+    client.login.mockResolvedValue(session(USER_B, CSRF_2));
+    renderAuth(client);
+
+    await waitFor(() => expect(client.getCurrentSession).toHaveBeenCalledTimes(2));
+
+    await act(async () => {
+      await captured?.login(LOGIN_INPUT);
+    });
+    expect(authenticatedUser().email).toBe('b@example.com');
+
+    await act(async () => {
+      rejectRetry(httpError(409));
+    });
+    // The stale retry failure must not touch the newer authenticated session.
+    expect(authenticatedUser().email).toBe('b@example.com');
+    expect(screen.getByTestId('status')).toHaveTextContent('authenticated');
+  });
+
   it.each([
     ['network', () => ApiError.network()],
     ['500', () => httpError(500)],
@@ -312,6 +364,85 @@ describe('AuthProvider — logout', () => {
     expect(caught).toBeInstanceOf(ApiError);
     expect(screen.getByTestId('status')).toHaveTextContent('authenticated');
   });
+
+  it('logout without a CSRF clears local state without calling the API', async () => {
+    const client = createFakeClient();
+    client.getCurrentSession.mockRejectedValue(httpError(401));
+    renderAuth(client);
+    await waitFor(() => expect(screen.getByTestId('status')).toHaveTextContent('unauthenticated'));
+
+    await act(async () => {
+      await captured?.logout();
+    });
+    expect(client.logout).not.toHaveBeenCalled();
+    expect(screen.getByTestId('status')).toHaveTextContent('unauthenticated');
+  });
+
+  it('logout does not allow a stale restore to resurrect the session', async () => {
+    const client = createFakeClient();
+    let resolveRestore!: (v: { user: AuthUser; csrfToken: string }) => void;
+    client.getCurrentSession.mockReturnValueOnce(
+      new Promise((resolve) => {
+        resolveRestore = resolve;
+      }),
+    );
+    client.logout.mockResolvedValue(undefined);
+    renderAuth(client);
+
+    await act(async () => {
+      resolveRestore(session(USER_A, CSRF_1));
+    });
+    await waitFor(() => expect(screen.getByTestId('status')).toHaveTextContent('authenticated'));
+
+    await act(async () => {
+      await captured?.logout();
+    });
+    expect(screen.getByTestId('status')).toHaveTextContent('unauthenticated');
+    expect(client.getCurrentSession).toHaveBeenCalledTimes(1);
+  });
+
+  it('concurrent logout calls settle safely and the latest op wins', async () => {
+    const client = createFakeClient();
+    let resolveLogout!: () => void;
+    client.logout.mockReturnValue(new Promise<void>((resolve) => (resolveLogout = resolve)));
+    await renderAuthenticated(client);
+
+    const first = captured?.logout();
+    const second = captured?.logout();
+    await act(async () => {
+      resolveLogout();
+      await Promise.allSettled([first, second]);
+    });
+    expect(client.logout).toHaveBeenCalledTimes(2);
+    expect(screen.getByTestId('status')).toHaveTextContent('unauthenticated');
+  });
+
+  it('ignores a stale logout failure that arrives after a newer login', async () => {
+    const client = createFakeClient();
+    let rejectLogout!: (v: unknown) => void;
+    client.logout.mockReturnValue(
+      new Promise((_resolve, reject) => {
+        rejectLogout = reject;
+      }),
+    );
+    await renderAuthenticated(client);
+
+    const pendingLogout = captured?.logout();
+    expect(client.logout).toHaveBeenCalledTimes(1);
+    // A newer login wins the operation id before the logout settles.
+    await act(async () => {
+      client.login.mockResolvedValue(session(USER_B, CSRF_2));
+      const loginPromise = captured?.login({ email: 'b@example.com', password: 'x' });
+      await loginPromise;
+    });
+    await act(async () => {
+      rejectLogout(httpError(500));
+      await pendingLogout;
+    });
+    expect(screen.getByTestId('status')).toHaveTextContent('authenticated');
+    expect(authenticatedUser().email).toBe('b@example.com');
+    expect(client.logout).toHaveBeenCalledTimes(1);
+  });
 });
 
 describe('AuthProvider — change password', () => {
@@ -376,6 +507,76 @@ describe('AuthProvider — change password', () => {
     });
     expect(screen.getByTestId('status')).toHaveTextContent('unauthenticated');
   });
+
+  it('change-password without a CSRF clears local state and throws a 401', async () => {
+    const client = createFakeClient();
+    client.getCurrentSession.mockRejectedValue(httpError(401));
+    renderAuth(client);
+    await waitFor(() => expect(screen.getByTestId('status')).toHaveTextContent('unauthenticated'));
+
+    let caught: unknown;
+    await act(async () => {
+      try {
+        await captured?.changePassword(CHANGE_INPUT);
+      } catch (error) {
+        caught = error;
+      }
+    });
+    expect(client.changePassword).not.toHaveBeenCalled();
+    expect(caught).toBeInstanceOf(ApiError);
+    expect((caught as ApiError).status).toBe(401);
+    expect(screen.getByTestId('status')).toHaveTextContent('unauthenticated');
+  });
+
+  it('ignores a stale change-password failure that arrives after a newer login', async () => {
+    const client = createFakeClient();
+    let rejectChange!: (v: unknown) => void;
+    client.changePassword.mockReturnValue(
+      new Promise((_resolve, reject) => {
+        rejectChange = reject;
+      }),
+    );
+    await renderAuthenticated(client);
+
+    const pendingChange = captured?.changePassword(CHANGE_INPUT);
+    expect(client.changePassword).toHaveBeenCalledTimes(1);
+    // A newer login wins the operation id before the change settles.
+    await act(async () => {
+      client.login.mockResolvedValue(session(USER_B, CSRF_2));
+      const loginPromise = captured?.login({ email: 'b@example.com', password: 'x' });
+      await loginPromise;
+    });
+    await act(async () => {
+      rejectChange(httpError(500));
+      await pendingChange;
+    });
+    expect(screen.getByTestId('status')).toHaveTextContent('authenticated');
+    expect(authenticatedUser().email).toBe('b@example.com');
+  });
+
+  it('ignores a stale change-password success that arrives after a newer logout', async () => {
+    const client = createFakeClient();
+    let resolveChange!: (v: { user: AuthUser; csrfToken: string }) => void;
+    client.changePassword.mockReturnValue(
+      new Promise((resolve) => {
+        resolveChange = resolve;
+      }),
+    );
+    await renderAuthenticated(client);
+
+    const pendingChange = captured?.changePassword(CHANGE_INPUT);
+    await act(async () => {
+      await captured?.logout();
+    });
+    expect(screen.getByTestId('status')).toHaveTextContent('unauthenticated');
+
+    await act(async () => {
+      resolveChange(session(USER_A, CSRF_2));
+      await pendingChange;
+    });
+    // The stale success must not resurrect the session after logout.
+    expect(screen.getByTestId('status')).toHaveTextContent('unauthenticated');
+  });
 });
 
 describe('AuthProvider — concurrency and lifecycle', () => {
@@ -431,6 +632,30 @@ describe('AuthProvider — concurrency and lifecycle', () => {
     expect(screen.getByTestId('status')).toHaveTextContent('unauthenticated');
   });
 
+  it('a stale login result never overrides a newer logout', async () => {
+    const client = createFakeClient();
+    client.getCurrentSession.mockRejectedValue(httpError(401));
+    let resolveLogin!: (v: { user: AuthUser; csrfToken: string }) => void;
+    client.login.mockReturnValue(
+      new Promise((resolve) => {
+        resolveLogin = resolve;
+      }),
+    );
+    client.logout.mockResolvedValue(undefined);
+    renderAuth(client);
+    await waitFor(() => expect(screen.getByTestId('status')).toHaveTextContent('unauthenticated'));
+
+    await act(async () => {
+      const pendingLogin = captured?.login(LOGIN_INPUT);
+      await captured?.logout();
+      resolveLogin(session(USER_A, CSRF_1));
+      await pendingLogin;
+    });
+    // The login resolved after the logout bumped the operation id: it must not
+    // resurrect the session.
+    expect(screen.getByTestId('status')).toHaveTextContent('unauthenticated');
+  });
+
   it('does not update state after unmount', async () => {
     const client = createFakeClient();
     let resolveRestore!: (v: { user: AuthUser; csrfToken: string }) => void;
@@ -482,6 +707,16 @@ describe('AuthProvider — concurrency and lifecycle', () => {
     expect(message).not.toContain('new-password');
     expect(message).not.toContain(CSRF_1);
     expect(message).not.toContain(CSRF_2);
+  });
+});
+
+describe('useAuth', () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it('throws when used outside the AuthProvider', () => {
+    expect(() => render(<Harness />)).toThrow('useAuth must be used within an AuthProvider.');
   });
 });
 

@@ -267,6 +267,48 @@ describe('LogoutButton — controlled failures preserve the session (task 9.3)',
     expect(document.body.textContent ?? '').not.toContain('c'.repeat(64));
   });
 
+  it('maps an unexpected status and a non-ApiError to generic messages', async () => {
+    const clientUnexpected = createFakeClient({
+      logout: async () => {
+        throw ApiError.http(418, { message: 'unknown' });
+      },
+    });
+    renderApp(clientUnexpected);
+    await screen.findByRole('heading', { name: 'Dashboard' });
+    fireEvent.click(screen.getByRole('button', { name: 'Sair' }));
+    const alert = await screen.findByRole('alert');
+    expect(alert).toHaveTextContent('Não foi possível sair. Tente novamente.');
+    expect(screen.getByRole('heading', { name: 'Dashboard' })).toBeInTheDocument();
+  });
+
+  it('maps an ApiError of a non-HTTP kind and a non-ApiError to generic messages', async () => {
+    const clientKind = createFakeClient({
+      logout: async () => {
+        throw ApiError.invalidResponse();
+      },
+    });
+    renderApp(clientKind);
+    await screen.findByRole('heading', { name: 'Dashboard' });
+    fireEvent.click(screen.getByRole('button', { name: 'Sair' }));
+    const alert = await screen.findByRole('alert');
+    expect(alert).toHaveTextContent('Ocorreu um erro inesperado. Tente novamente.');
+    expect(screen.getByRole('heading', { name: 'Dashboard' })).toBeInTheDocument();
+  });
+
+  it('maps a non-ApiError to a generic message without leaking it', async () => {
+    const client = createFakeClient({
+      logout: async () => {
+        throw new Error('internal boom');
+      },
+    });
+    renderApp(client);
+    await screen.findByRole('heading', { name: 'Dashboard' });
+    fireEvent.click(screen.getByRole('button', { name: 'Sair' }));
+    const alert = await screen.findByRole('alert');
+    expect(alert).toHaveTextContent('Ocorreu um erro inesperado. Tente novamente.');
+    expect(alert).not.toHaveTextContent('internal boom');
+  });
+
   it('allows a manual retry after a failure (no automatic retry)', async () => {
     const client = createFakeClient({
       logout: vi

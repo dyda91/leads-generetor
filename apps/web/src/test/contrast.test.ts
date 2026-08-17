@@ -94,6 +94,11 @@ describe('design tokens (globals.css)', () => {
     expect(globalsCss).not.toContain('prefers-color-scheme');
   });
 
+  it('defines the widescreen layout tokens used by the shell', () => {
+    expect(globalsCss).toMatch(/--container-content:\s*1200px/);
+    expect(globalsCss).toMatch(/--sidebar-width:\s*240px/);
+  });
+
   it('respects reduced motion for the used animations', () => {
     expect(globalsCss).toContain('@media (prefers-reduced-motion: reduce)');
     expect(globalsCss).toContain('.animate-pulse');

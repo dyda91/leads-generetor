@@ -73,6 +73,12 @@ describe('resolveApiClientConfig', () => {
     );
   });
 
+  it('rejects an unparsable base URL', () => {
+    expectConfigError(() =>
+      resolveApiClientConfig({ VITE_API_BASE_URL: '://missing-scheme' }, { isProduction: false }),
+    );
+  });
+
   it('rejects credentials, query strings and fragments', () => {
     const withCredentials = buildUrlWithUserinfo({
       username: 'user',

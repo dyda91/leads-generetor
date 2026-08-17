@@ -132,7 +132,7 @@ Critério de conclusão: documentação consistente com spec/design e sem segred
 
 Comandos: `pnpm check` · `pnpm check:secrets` · `pnpm audit` · `pnpm exec openspec validate visual-foundation-and-layout`
 
-- [ ] 13.1 Rodar gates completos (format, workspaces, segredos, lint, typecheck, test, build) sem erros
-- [ ] 13.2 Revisão de segurança do frontend: sem tokens/segredos em storage/logs/URLs, sem open redirect, sem `dangerouslySetInnerHTML`/`eval`, sem segredos em `VITE_*`, CORS exato `http://127.0.0.1:5173`
+- [x] 13.1 Rodar gates completos (format, workspaces, segredos, lint, typecheck, test, build) sem erros
+- [x] 13.2 Revisão de segurança do frontend: sem tokens/segredos em storage/logs/URLs, sem open redirect, sem `dangerouslySetInnerHTML`/`eval`, sem segredos em `VITE_*`, CORS exato `http://127.0.0.1:5173`
 
-Critério de conclusão: todos os comandos com exit 0; checklist de segurança revisado; nenhuma credencial real em código, testes, fixtures ou logs.
+Critério de conclusão: todos os comandos com exit 0; checklist de segurança revisado; nenhuma credencial real em código, testes, fixtures ou logs. **Resultado:** gates exit 0 (format/workspaces/segredos/lint/typecheck/build/test/check ×2); segurança estática e dinâmica revisada (sem tokens em storage/logs/URLs, sem open redirect, sem `dangerouslySetInnerHTML`/`eval`, sem segredos em `VITE_*`, CORS exato `http://127.0.0.1:5173`); nenhuma credencial em código/testes/fixtures/logs.

@@ -71,7 +71,7 @@ function LogoutTrigger() {
   const { logout } = useAuth();
   return (
     <button type="button" onClick={() => void logout()}>
-      Sair
+      Sair (teste)
     </button>
   );
 }
@@ -297,7 +297,7 @@ describe('navigation (Grupo 6 — protected routes and safe post-login destinati
       ),
     });
     expect(await screen.findByRole('heading', { name: 'Dashboard' })).toBeInTheDocument();
-    fireEvent.click(screen.getByRole('button', { name: 'Sair' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Sair (teste)' }));
     expect(await screen.findByRole('heading', { name: 'Acesse sua conta' })).toBeInTheDocument();
     await waitFor(() => expect(snapshot.current?.pathname).toBe('/login'));
     expect(client.logout).toHaveBeenCalledTimes(1);

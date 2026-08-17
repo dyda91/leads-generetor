@@ -4,13 +4,16 @@ import { useState } from 'react';
 
 import { Button } from '../ui/button';
 import { Brand } from './Brand';
+import { LogoutButton } from './logout-button';
 import { NavList } from './navigation';
 
 /**
  * Mobile navigation: a compact header trigger opens a left drawer. Radix Dialog
  * provides the focus trap, Escape-to-close, scroll lock, background
  * non-interactivity and focus-return-to-trigger behavior. Selecting a nav item
- * closes the drawer and navigates via React Router (NavLink).
+ * closes the drawer and navigates via React Router (NavLink). The drawer stays
+ * open while a logout is pending or failed so the controlled error remains
+ * accessible; a successful logout redirects and unmounts the whole shell.
  */
 export function MobileNav() {
   const [open, setOpen] = useState(false);
@@ -39,6 +42,9 @@ export function MobileNav() {
           <nav aria-label="Menu de navegação">
             <NavList onNavigate={() => setOpen(false)} />
           </nav>
+          <div className="mt-auto border-t border-border pt-4">
+            <LogoutButton />
+          </div>
         </Dialog.Content>
       </Dialog.Portal>
     </Dialog.Root>

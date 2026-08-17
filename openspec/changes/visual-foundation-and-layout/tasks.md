@@ -95,7 +95,7 @@ Comandos: `pnpm --filter @leads/web test`
 
 - [x] 9.1 Página/modal protegido de troca de senha (senha atual, nova senha, confirmação local, requisitos claros, CSRF em memória, sem normalização, sem armazenar/logar valores, sem submissão duplicada, inputs limpos)
 - [x] 9.2 Tratamento de erros da troca (senha atual incorreta → mensagem uniforme; 401 → redireciona; 403 → CSRF/origem); sucesso atualiza CSRF em memória
-- [ ] 9.3 Logout com CSRF, sem auto-retry; sucesso limpa memória e redireciona; falha de rede oferece limpar estado local sem afirmar revogação do servidor; 401 limpa estado
+- [x] 9.3 Logout com CSRF, sem auto-retry; sucesso limpa memória e redireciona; falha de rede oferece limpar estado local sem afirmar revogação do servidor; 401 limpa estado
 
 Critério de conclusão: testes de troca de senha e logout (sucesso, falha de rede, 401), CSRF em memória e ausência de persistência.
 

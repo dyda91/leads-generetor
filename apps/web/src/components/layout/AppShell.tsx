@@ -1,6 +1,7 @@
 import { Outlet } from 'react-router';
 
 import { Brand } from './Brand';
+import { LogoutButton } from './logout-button';
 import { MobileNav } from './mobile-nav';
 import { NavList } from './navigation';
 
@@ -38,6 +39,9 @@ export function AppShell() {
             <nav aria-label="Navegação principal">
               <NavList />
             </nav>
+            <div className="mt-auto border-t border-border pt-4">
+              <LogoutButton />
+            </div>
           </div>
         </aside>
         <main id="main-content" tabIndex={-1} className="min-w-0 flex-1 focus:outline-none">

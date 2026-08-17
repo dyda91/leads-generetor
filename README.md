@@ -100,6 +100,29 @@ docker compose -f infrastructure/docker-compose.dev.yml down postgres-test
 
 Os testes recusam rodar se `DATABASE_URL_TEST` não corresponder ao banco de teste esperado; `prisma migrate reset` nunca é executado contra o banco de desenvolvimento.
 
+> **Por que o gate de testes é serial.** O script raiz `pnpm test` usa `--workspace-concurrency=1` para executar os scripts `test` dos workspaces um a um. A API (Jest, `maxWorkers: 1`) e o E2E (Playwright, `workers: 1`) fazem **cleanup destrutivo no mesmo banco isolado** (`users`/`sessions` no `postgres-test`); se rodassem em paralelo, um limparia a base do outro e produziria falhas não determinísticas. A serialização garante suíte por suíte contra a mesma `DATABASE_URL_TEST`.
+
+### E2E (Playwright, navegador real)
+
+Os testes E2E validam frontend → API → PostgreSQL isolado em navegador real (Chromium). Requerem o `postgres-test` em `127.0.0.1:5434`, o navegador instalado e as mesmas variáveis da API:
+
+```bash
+# 1. Navegador (uma vez) — se `libnspr4.so` etc. estiverem ausentes:
+pnpm --filter @leads/e2e exec playwright install --with-deps chromium
+# (sem sudo manual; o comando oficial cuida das dependências do sistema)
+
+# 2. Banco de teste isolado (porta 5434, tmpfs):
+docker compose -f infrastructure/docker-compose.dev.yml up -d postgres-test
+
+# 3. Executar a suíte:
+DATABASE_URL_TEST=postgresql://…@127.0.0.1:5434/leads_test \
+  pnpm --filter @leads/e2e test
+```
+
+O `playwright.config.ts` inicia a API (loopback, porta 3100) e o frontend (loopback, porta 5174), aplica as migrations (idempotente) e seeda um único administrador no banco de teste via helper em processo (nunca o CLI interativo). Credenciais E2E são geradas em runtime com CSPRNG e mantidas **somente em memória** por uma fixture worker-scoped tipada — nunca gravadas em arquivo, storageState, argv, stdout, relatório ou attachment; a senha chega ao seed apenas pelo ambiente controlado do subprocesso. Portas exclusivas: API `3100`, web `5174`; CORS exato `http://127.0.0.1:5174`.
+
+Como a aplicação permite uma única sessão ativa por administrador e aplica rate limit estrito (10/min por IP em login/troca de senha), os fluxos autenticados rodam em uma **jornada serial explícita** (um teste com `test.step` em ordem de dependência): login → dashboard → layout → drawer mobile → responsividade → restauração/cookie → troca de senha → senha antiga inválida → logout → senha nova válida. Testes públicos (proteção, 404, erros de login) continuam independentes. Orçamento de login da suíte: 5 chamadas `POST /auth/login` (3 válidas, 2 inválidas) + 1 troca de senha — abaixo do limite de 10/min. Artefatos de falha (como `error-context.md`, gerado automaticamente pelo Playwright) são escritos em um diretório temporário privado fora do repositório; um redator compara o conteúdo contra as credenciais em memória e o teardown remove o diretório ao final (sucesso ou falha normal), sem deixar valores sensíveis.
+
 ## Comandos
 
 | Comando                                    | Descrição                                                            |

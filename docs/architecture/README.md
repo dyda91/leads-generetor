@@ -18,7 +18,7 @@ Sistema web para gerar e gerenciar leads empresariais: busca de empresas por seg
 - **API (shell NestJS seguro de runtime):** fail-fast de configuração, `GET /health` mínimo, headers Helmet/CSP/HSTS, CORS por allowlist, limites de corpo, ValidationPipe, contrato de erros centralizado, request ID server-generated, rate limit global e shutdown ordenado. Autenticação do administrador único (sessão opaca por cookie, Argon2id, CSRF, sessão única, anti-enumeração). Detalhes da superfície pública e limites em [`docs/architecture/api.md`](api.md). **Não há** Google Places, leads ou frontend nesta fase inicial — o frontend foi adicionado por `visual-foundation-and-layout`.
 - **Frontend (`apps/web`):** React 19 + Vite 7 + TypeScript estrito + Tailwind + design system próprio; cliente de API tipado (fetch + Zod), autenticação em memória (cookie HttpOnly, CSRF em memória), rotas públicas/protegidas com guard, login, dashboard em estado vazio, troca de senha, logout, layout desktop/mobile acessível. Detalhes em [`docs/architecture/web.md`](web.md).
 
-**Planejado (mudanças futuras):** busca Google Places (`places-search`), gestão de leads, listas e pipeline, exportação, auditoria/observabilidade, hardening de produção e CI.
+**Planejado (mudanças futuras):** busca Google Places (`places-search` — pesquisa, política, custo e atribuição em [`places-policy.md`](places-policy.md)), gestão de leads, listas e pipeline, exportação, auditoria/observabilidade, hardening de produção e CI.
 
 ## Monorepo — responsabilidade de cada workspace
 

@@ -4,10 +4,10 @@
 
 Comandos: revisão manual da documentação oficial (links registrados no `design.md`, consulta 2026-08-17)
 
-- [ ] 1.1 Registrar em `docs/` os links oficiais e a data de consulta (Text Search (New), policies/attributions, SKU details, security best practices, termos)
-- [ ] 1.2 Documentar a tabela campo → SKU → decisão e a política de cache (conteúdo não persistido; **Place ID isento**)
-- [ ] 1.3 Registrar a decisão de custo dos campos **Enterprise** (telefone/site/avaliação): **OFF por padrão em dev/test/prod**; produção exige confirmação explícita (sem fallback silencioso); documentar o impacto de SKU **sem afirmar preço não verificado**; não afirmar que o recurso está habilitado antes da aprovação de custo no Google Cloud
-- [ ] 1.4 Documentar os requisitos de atribuição ("Google Maps", distinção de conteúdo, ranking notice) aplicados à interface
+- [x] 1.1 Registrar em `docs/` os links oficiais e a data de consulta (Text Search (New), policies/attributions, SKU details, security best practices, termos)
+- [x] 1.2 Documentar a tabela campo → SKU → decisão e a política de cache (conteúdo não persistido; **Place ID isento**)
+- [x] 1.3 Registrar a decisão de custo dos campos **Enterprise** (telefone/site/avaliação): **OFF por padrão em dev/test/prod**; produção exige confirmação explícita (sem fallback silencioso); documentar o impacto de SKU **sem afirmar preço não verificado**; não afirmar que o recurso está habilitado antes da aprovação de custo no Google Cloud
+- [x] 1.4 Documentar os requisitos de atribuição ("Google Maps", distinção de conteúdo, ranking notice) aplicados à interface
 
 Critério de conclusão: documentação de custo/política consistente com a fonte oficial, sem afirmar preços sem fonte/data; nenhum crédito consumido.
 
@@ -17,8 +17,8 @@ Comandos: `pnpm --filter @leads/api lint` · `pnpm --filter @leads/api typecheck
 
 - [ ] 2.1 Adicionar ao environment schema (fail-fast) as variáveis `PLACES_*`: `GOOGLE_PLACES_API_KEY`, `PLACES_ENABLED`, timeout, `PLACES_PAGE_SIZE` (fixo 10 no MVP), `PLACES_MAX_RESPONSE_BYTES`, rate limits por usuário e global, orçamento diário/mensal, `PLACES_ENABLE_CONTACT_FIELDS` (default `false`)
 - [ ] 2.2 Produção rejeita placeholder/valor inseguro (fail-fast) e erros de configuração não imprimem valores
-- [ ] 2.3 `apps/api/.env.example` com placeholders vazios; nenhuma variável sensível no frontend (`apps/web/.env.example` sem `VITE_*` de chave)
-- [ ] 2.4 Documentar rotação da chave e restrições no Google Cloud Console (API restriction para Places API; application restriction de servidor; quotas/alertas; nunca chave de navegador)
+- [x] 2.3 `apps/api/.env.example` com placeholders vazios; nenhuma variável sensível no frontend (`apps/web/.env.example` sem `VITE_*` de chave)
+- [x] 2.4 Documentar rotação da chave e restrições no Google Cloud Console (API restriction para Places API; application restriction de servidor; quotas/alertas; nunca chave de navegador)
 
 Critério de conclusão: boot recusa integração não habilitada/configuração inválida; testes do schema de ambiente verdes; nada sensível versionado.
 
